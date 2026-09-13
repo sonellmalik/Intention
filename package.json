@@ -33,7 +33,9 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "signAndEditExecutable": false
@@ -42,7 +44,10 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ],
       "identity": null,
@@ -51,8 +56,16 @@
     "dmg": {
       "title": "FocusFlow",
       "contents": [
-        { "x": 130, "y": 220 },
-        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
       ]
     },
     "nsis": {
@@ -78,5 +91,8 @@
   "devDependencies": {
     "electron": "^31.0.0",
     "electron-builder": "^24.13.3"
+  },
+  "allowScripts": {
+    "electron@31.7.7": true
   }
 }

@@ -78,10 +78,10 @@ function createMiniWindow() {
     const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
 
     miniWindow = new BrowserWindow({
-        width: 240,
-        height: 70,
+        width: 270,
+        height: 84,
         x: 20,
-        y: screenHeight - 100,
+        y: screenHeight - 114,
         resizable: false,
         frame: false,
         transparent: true,
@@ -294,6 +294,14 @@ ipcMain.on('timer-tick', (event, timeString) => {
 ipcMain.on('timer-mode-changed', (event, mode) => {
     if (miniWindow && !miniWindow.isDestroyed()) {
         miniWindow.webContents.send('update-mode', mode);
+    }
+});
+
+// Relay the current scheduler time-block title to the mini overlay so it can
+// show what the user planned to be doing right now (under the timer).
+ipcMain.on('timer-task-changed', (event, task) => {
+    if (miniWindow && !miniWindow.isDestroyed()) {
+        miniWindow.webContents.send('update-task', task);
     }
 });
 

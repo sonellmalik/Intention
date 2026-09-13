@@ -581,6 +581,19 @@ body.cal-resizing * {
     width: 100%;
     font-size: 0.72rem;
     color: var(--text);
+    position: relative;
+    z-index: 9; /* sit above the resize handles while editing */
+}
+
+/* While a block is being edited, its resize handles must not intercept clicks
+   or focus (they overlap the input on short blocks). */
+.cal-block.editing .cal-block-resize {
+    pointer-events: none;
+}
+
+.cal-block.editing .cal-block-inner {
+    position: relative;
+    z-index: 9;
 }
 
 /* Custom assign input in modal */

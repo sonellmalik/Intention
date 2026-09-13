@@ -14,6 +14,9 @@ const dayDetailSchedule = document.getElementById('day-detail-schedule');
 const btnCloseDetail = document.getElementById('btn-close-detail');
 
 let calendarDate = new Date();
+// The calendar day ("YYYY-MM-DD") the History UI was last rendered for. Used to
+// detect a date rollover (e.g. after midnight or waking from sleep).
+let _lastRenderedDayKey = getTodayKey();
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'];
@@ -285,6 +288,59 @@ btnCalNext.addEventListener('click', () => {
     renderCalendar();
 });
 
+// ===== Daily Date Rollover =====
+// "Today" is derived from new Date() at render time. If the app stays open past
+// midnight, the highlighted day and today-count would otherwise stay stuck on
+// the previous day. This refreshes the date-dependent UI right at 12:00 AM and
+// reschedules itself for the next midnight.
+function refreshHistoryForNewDay() {
+    const now = new Date();
+
+    // If the calendar is showing what was "this month" before midnight, keep it
+    // following the current day so the new "today" highlight stays visible
+    // (this also handles month/year boundaries like Jan 31 -> Feb 1).
+    const viewingCurrentPeriod =
+        calendarDate.getFullYear() === now.getFullYear() &&
+        calendarDate.getMonth() === now.getMonth();
+
+    if (viewingCurrentPeriod) {
+        calendarDate = new Date();
+    }
+
+    _lastRenderedDayKey = getTodayKey();
+    updateTodayCount();
+    renderCalendar();
+}
+
+function scheduleHistoryMidnightRefresh() {
+    const now = new Date();
+    const midnight = new Date(now);
+    midnight.setHours(24, 0, 0, 0); // next midnight
+    // Add a 1s cushion so we're safely into the new day when it fires.
+    const msUntilMidnight = midnight.getTime() - now.getTime() + 1000;
+
+    setTimeout(() => {
+        refreshHistoryForNewDay();
+        scheduleHistoryMidnightRefresh(); // reschedule for the following midnight
+    }, msUntilMidnight);
+}
+
+// Safety net for machine sleep/hibernate: a long setTimeout may not fire on
+// time if the device slept through midnight. Whenever the window regains focus
+// or becomes visible, check whether the calendar day changed since the last
+// render and refresh if so.
+function checkDayRolloverOnWake() {
+    if (getTodayKey() !== _lastRenderedDayKey) {
+        refreshHistoryForNewDay();
+    }
+}
+
+window.addEventListener('focus', checkDayRolloverOnWake);
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) checkDayRolloverOnWake();
+});
+
 // Initialize
 updateTodayCount();
 renderCalendar();
+scheduleHistoryMidnightRefresh();

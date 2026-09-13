@@ -10,10 +10,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     timerStopped: (sessionInfo) => ipcRenderer.send('timer-stopped', sessionInfo),
     timerTick: (timeString) => ipcRenderer.send('timer-tick', timeString),
     timerModeChanged: (mode) => ipcRenderer.send('timer-mode-changed', mode),
+    // Current scheduler time-block title to show under the mini timer.
+    timerTaskChanged: (task) => ipcRenderer.send('timer-task-changed', task),
     showMainWindow: () => ipcRenderer.send('show-main-window'),
     miniPauseToggle: () => ipcRenderer.send('mini-pause-toggle'),
     onUpdateTime: (callback) => ipcRenderer.on('update-time', (event, time) => callback(time)),
     onUpdateMode: (callback) => ipcRenderer.on('update-mode', (event, mode) => callback(mode)),
+    onUpdateTask: (callback) => ipcRenderer.on('update-task', (event, task) => callback(task)),
     onToggleTimer: (callback) => ipcRenderer.on('toggle-timer', () => callback()),
 
     // Distraction counter

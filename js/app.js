@@ -63,3 +63,7 @@ function loadData(key, fallback) {
     const data = localStorage.getItem(`focusflow_${key}`);
     return data ? JSON.parse(data) : fallback;
 }
+
+function removeData(key) {
+    localStorage.removeItem(`focusflow_${key}`);
+}

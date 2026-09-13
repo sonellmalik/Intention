@@ -147,6 +147,38 @@ function updateDisplay() {
     // Send tick to Electron mini window
     if (isElectron && window.timerState.isRunning) {
         window.electronAPI.timerTick(getTimeString());
+        sendCurrentTimeBlockTask();
+    }
+}
+
+// ===== Current scheduler time-block -> mini overlay =====
+// Finds the calendar block that spans the current time and sends its title to
+// the mini timer window so it shows what's planned right now, under the timer.
+let _lastSentTaskTitle = null;
+
+function getCurrentTimeBlockTitle() {
+    const blocks = (typeof loadData === 'function') ? loadData('timeblocksV2', []) : [];
+    if (!Array.isArray(blocks) || blocks.length === 0) return null;
+
+    const now = new Date();
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+
+    // A block covers now when start <= now < end (minutes from midnight).
+    const current = blocks.find(b =>
+        typeof b.start === 'number' && typeof b.end === 'number' &&
+        nowMin >= b.start && nowMin < b.end
+    );
+
+    return current ? current.task : null;
+}
+
+function sendCurrentTimeBlockTask() {
+    if (!isElectron || !window.electronAPI.timerTaskChanged) return;
+    const title = getCurrentTimeBlockTitle();
+    // Only send when it changes to avoid needless IPC chatter every tick.
+    if (title !== _lastSentTaskTitle) {
+        _lastSentTaskTitle = title;
+        window.electronAPI.timerTaskChanged(title || '');
     }
 }
 
@@ -258,6 +290,9 @@ window.startTimer = function() {
             : beginSyncSession();
         window.electronAPI.timerStarted(sessionInfo);
         window.electronAPI.timerModeChanged(window.timerState.mode);
+        // Push the current time-block title once the mini overlay has mounted.
+        _lastSentTaskTitle = null;
+        setTimeout(sendCurrentTimeBlockTask, 300);
     }
 };
 
@@ -321,6 +356,8 @@ btnMinimize.addEventListener('click', () => {
         // Re-minimizing an already-running session: no new sync session.
         window.electronAPI.timerStarted(null);
         window.electronAPI.timerModeChanged(window.timerState.mode);
+        _lastSentTaskTitle = null;
+        setTimeout(sendCurrentTimeBlockTask, 300);
     }
 });
 

@@ -16,6 +16,9 @@
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
             overflow: hidden;
             -webkit-app-region: drag;
+            display: flex;
+            align-items: center;
+            height: 100vh;
         }
 
         .mini-container {
@@ -30,16 +33,37 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         }
 
+        .timer-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            min-width: 72px;
+        }
+
         .timer-time {
             font-size: 1.5rem;
             font-weight: 700;
             color: #ffffff;
             font-variant-numeric: tabular-nums;
-            min-width: 72px;
+            line-height: 1.1;
         }
 
         .timer-time.break-mode {
             color: #4cc9f0;
+        }
+
+        .timer-task {
+            font-size: 0.68rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .timer-task.hidden {
+            display: none;
         }
 
         .mini-controls {
@@ -112,7 +136,10 @@
 <body>
     <div class="mini-container">
         <div class="mode-dot" id="mode-dot"></div>
-        <div class="timer-time" id="timer-time">25:00</div>
+        <div class="timer-info">
+            <div class="timer-time" id="timer-time">25:00</div>
+            <div class="timer-task hidden" id="timer-task"></div>
+        </div>
         <div class="mini-controls">
             <button class="mini-btn distraction-btn" id="btn-distraction" title="Log Distraction">
                 !
@@ -125,6 +152,7 @@
 
     <script>
         const timerTime = document.getElementById('timer-time');
+        const timerTask = document.getElementById('timer-task');
         const modeDot = document.getElementById('mode-dot');
         const btnPause = document.getElementById('btn-pause');
         const btnExpand = document.getElementById('btn-expand');
@@ -147,6 +175,18 @@
             } else {
                 modeDot.classList.add('break');
                 timerTime.classList.add('break-mode');
+            }
+        });
+
+        // Receive the current scheduler time-block title (shown under the timer)
+        window.electronAPI.onUpdateTask((task) => {
+            if (task && task.trim()) {
+                timerTask.textContent = task;
+                timerTask.title = task;
+                timerTask.classList.remove('hidden');
+            } else {
+                timerTask.textContent = '';
+                timerTask.classList.add('hidden');
             }
         });
 

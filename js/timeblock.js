@@ -337,16 +337,23 @@ const SLOT_HEIGHT = 14;     // px per 10-min slot
 // blocks: array of { id, start: minutesFromMidnight, end: minutesFromMidnight, task: string, type: 'todo'|'break' }
 let blocks = loadData('timeblocksV2', []);
 
-// Migrate old hourly timeblocks if present
+// Migrate old hourly timeblocks if present (one-time). Previously this ran on
+// every launch with an empty calendar, so a leftover legacy `timeblocks` key
+// kept re-seeding phantom blocks after Clear All or on a new day. We now remove
+// the legacy key after migrating so it can only ever happen once.
 const oldTimeblocks = loadData('timeblocks', null);
-if (oldTimeblocks && blocks.length === 0) {
-    Object.keys(oldTimeblocks).forEach(key => {
-        const hour = parseInt(key.replace('hour_', ''));
-        if (!isNaN(hour)) {
-            blocks.push({ start: hour * 60, end: (hour + 1) * 60, task: oldTimeblocks[key], type: 'todo' });
-        }
-    });
-    if (blocks.length > 0) saveData('timeblocksV2', blocks);
+if (oldTimeblocks) {
+    if (blocks.length === 0) {
+        Object.keys(oldTimeblocks).forEach(key => {
+            const hour = parseInt(key.replace('hour_', ''));
+            if (!isNaN(hour)) {
+                blocks.push({ start: hour * 60, end: (hour + 1) * 60, task: oldTimeblocks[key], type: 'todo' });
+            }
+        });
+        if (blocks.length > 0) saveData('timeblocksV2', blocks);
+    }
+    // Drop the legacy key regardless, so it never re-seeds the calendar again.
+    removeData('timeblocks');
 }
 
 // Ensure every block has a stable unique id
@@ -810,6 +817,12 @@ function startEditBlock(id) {
 
     const blockEl = timeblockCalendar.querySelector(`.cal-block[data-block-id="${id}"]`);
     if (!blockEl) return;
+
+    // While editing, mark the block so the resize handles are disabled. The
+    // absolutely-positioned handles sit above the block content, so on short
+    // blocks they cover the input and swallow clicks/focus — making it seem like
+    // you can only erase (the field keeps its initial focus) but not click/type.
+    blockEl.classList.add('editing');
 
     const taskSpan = blockEl.querySelector('.cal-block-task');
     const input = document.createElement('input');
