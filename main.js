@@ -79,9 +79,11 @@ function createMiniWindow() {
 
     miniWindow = new BrowserWindow({
         width: 270,
-        height: 84,
+        // Starts compact; the renderer measures its content and asks to resize
+        // (grows upward from the bottom-left anchor) when a task line is shown.
+        height: 70,
         x: 20,
-        y: screenHeight - 114,
+        y: screenHeight - 100,
         resizable: false,
         frame: false,
         transparent: true,
@@ -303,6 +305,27 @@ ipcMain.on('timer-task-changed', (event, task) => {
     if (miniWindow && !miniWindow.isDestroyed()) {
         miniWindow.webContents.send('update-task', task);
     }
+});
+
+// The mini overlay's content height varies (0, 1, or 2 task lines). It measures
+// its own content and asks us to resize so nothing is clipped and there's no
+// wasted transparent space. We keep the window's BOTTOM edge fixed so it grows
+// upward from its bottom-left anchor near the taskbar.
+ipcMain.on('resize-mini-window', (event, contentHeight) => {
+    if (!miniWindow || miniWindow.isDestroyed()) return;
+
+    const MIN_H = 70;
+    const MAX_H = 140;
+    const newHeight = Math.max(MIN_H, Math.min(MAX_H, Math.round(contentHeight)));
+
+    const [w] = miniWindow.getSize();
+    const [x, y] = miniWindow.getPosition();
+    const currentHeight = miniWindow.getSize()[1];
+    if (newHeight === currentHeight) return;
+
+    // Keep the bottom edge in place: adjust y by the height delta.
+    const newY = y + (currentHeight - newHeight);
+    miniWindow.setBounds({ x, y: newY, width: w, height: newHeight });
 });
 
 ipcMain.on('show-main-window', () => {

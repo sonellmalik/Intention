@@ -12,6 +12,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     timerModeChanged: (mode) => ipcRenderer.send('timer-mode-changed', mode),
     // Current scheduler time-block title to show under the mini timer.
     timerTaskChanged: (task) => ipcRenderer.send('timer-task-changed', task),
+    // Mini overlay asks main to resize its window to fit its content height.
+    resizeMiniWindow: (height) => ipcRenderer.send('resize-mini-window', height),
     showMainWindow: () => ipcRenderer.send('show-main-window'),
     miniPauseToggle: () => ipcRenderer.send('mini-pause-toggle'),
     onUpdateTime: (callback) => ipcRenderer.on('update-time', (event, time) => callback(time)),
