@@ -45,6 +45,23 @@
     line-height: 1.2;
 }
 
+/* The CTAs are <a> tags, so the generic `.mk a { color: var(--primary) }` rule
+   above would otherwise tint their text blue - which made the primary CTA's
+   text blue-on-blue (invisible). Re-assert the button text colors here (same
+   specificity as `.mk a` but later in source order, and `.mk .btn-*` is more
+   specific) so each button keeps its intended contrast. */
+.mk .btn-primary {
+    color: #fff;
+}
+
+.mk .btn-ghost {
+    color: var(--text-muted);
+}
+
+.mk .btn-ghost:hover {
+    color: var(--text);
+}
+
 /* ---- Header / Nav ---- */
 .mk-header {
     position: sticky;
