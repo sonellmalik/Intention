@@ -1,0 +1,7 @@
+{
+  "task_id": "task-intention-web",
+  "task_description": "Build two web deliverables for the Intention productivity app in the existing repo: (1) make the existing renderer (index.html + css/ + js/) full-width and responsive in the browser with sign-in reachable, without breaking the Electron narrow-column layout; (2) a responsive marketing landing page at web/index.html matching the existing visual identity with CTAs into the web app, GitHub Releases, and sign-in. Plain static files, no bundler/framework.",
+  "status": "completed",
+  "feature_order": ["FEAT-001", "FEAT-002"],
+  "blocked_reason": null
+}
