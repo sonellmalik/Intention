@@ -75,7 +75,9 @@ const btnPause = document.getElementById('btn-pause');
 const btnReset = document.getElementById('btn-reset');
 const btnMinimize = document.getElementById('btn-minimize');
 const sessionNumber = document.getElementById('session-number');
-const modeTabs = document.querySelectorAll('.mode-tab');
+// Only the real mode tabs carry a data-mode; the settings gear shares the
+// .mode-tab class for styling but must be excluded from mode switching.
+const modeTabs = document.querySelectorAll('.mode-tab[data-mode]');
 const miniTimerTime = document.getElementById('mini-timer-time');
 const miniTimerToggle = document.getElementById('mini-btn-toggle');
 
@@ -142,7 +144,7 @@ function updateDisplay() {
     timerMinutes.textContent = String(mins).padStart(2, '0');
     timerSeconds.textContent = String(secs).padStart(2, '0');
     miniTimerTime.textContent = getTimeString();
-    document.title = `${getTimeString()} - FocusFlow`;
+    document.title = `${getTimeString()} - Intention`;
 
     // Send tick to Electron mini window
     if (isElectron && window.timerState.isRunning) {
@@ -156,20 +158,53 @@ function updateDisplay() {
 // the mini timer window so it shows what's planned right now, under the timer.
 let _lastSentTaskTitle = null;
 
+// YYYY-MM-DD key for today (matches the Calendar/history keys).
+function _todayDateKey() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
+// Collect everything scheduled for RIGHT NOW from both sources the scheduler
+// shows: the scheduler's own time blocks (timeblocksV2) AND today's events
+// created on the full Calendar (calendarEvents). This keeps the mini overlay,
+// the scheduler, and the calendar in sync — a task/event scheduled on the
+// calendar for the current time shows on the mini timer too.
 function getCurrentTimeBlockTitle() {
-    const blocks = (typeof loadData === 'function') ? loadData('timeblocksV2', []) : [];
-    if (!Array.isArray(blocks) || blocks.length === 0) return null;
+    if (typeof loadData !== 'function') return null;
 
     const now = new Date();
     const nowMin = now.getHours() * 60 + now.getMinutes();
-
-    // A block covers now when start <= now < end (minutes from midnight).
-    const current = blocks.find(b =>
+    const covers = (b) =>
         typeof b.start === 'number' && typeof b.end === 'number' &&
-        nowMin >= b.start && nowMin < b.end
-    );
+        nowMin >= b.start && nowMin < b.end;
 
-    return current ? current.task : null;
+    const candidates = [];
+
+    // Scheduler blocks (today only by design)
+    const blocks = loadData('timeblocksV2', []);
+    if (Array.isArray(blocks)) {
+        blocks.forEach(b => { if (covers(b)) candidates.push(b); });
+    }
+
+    // Today's calendar events
+    const calStore = loadData('calendarEvents', {}) || {};
+    const todayEvents = calStore[_todayDateKey()] || [];
+    if (Array.isArray(todayEvents)) {
+        todayEvents.forEach(b => { if (covers(b)) candidates.push(b); });
+    }
+
+    if (candidates.length === 0) return null;
+
+    // If several overlap "now", prefer the one that started most recently
+    // (the most specific / most recently begun activity); break ties by the
+    // earlier end (the more imminent one).
+    candidates.sort((a, b) => (b.start - a.start) || (a.end - b.end));
+
+    const current = candidates[0];
+    return (current && current.task) ? current.task : null;
 }
 
 function sendCurrentTimeBlockTask() {
@@ -180,6 +215,35 @@ function sendCurrentTimeBlockTask() {
         _lastSentTaskTitle = title;
         window.electronAPI.timerTaskChanged(title || '');
     }
+}
+
+// Force a resend on the NEXT check even if the title hasn't changed value
+// (used when the mini window (re)opens, so it re-receives the current task).
+function resetSentTaskCache() {
+    _lastSentTaskTitle = null;
+}
+
+// Public hook so the scheduler can nudge the mini overlay immediately after a
+// same-window edit (the `storage` event only fires in OTHER windows).
+if (typeof window !== 'undefined') {
+    window.syncMiniTask = sendCurrentTimeBlockTask;
+}
+
+// Keep the mini overlay's task label in sync even when the timer is paused or
+// idle. Two triggers beyond the per-tick send:
+//   1. A `storage` event when the Calendar (possibly a separate window) or the
+//      scheduler writes calendarEvents / timeblocksV2.
+//   2. A slow interval, to catch the block boundary rolling over (the block
+//      covering "now" changes as time passes) regardless of timer state.
+if (typeof window !== 'undefined') {
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'focusflow_calendarEvents' || e.key === 'focusflow_timeblocksV2') {
+            sendCurrentTimeBlockTask();
+        }
+    });
+
+    // Every 20s is plenty for boundary changes without noticeable lag.
+    setInterval(() => sendCurrentTimeBlockTask(), 20000);
 }
 
 function tick() {
@@ -235,7 +299,7 @@ function completeSession() {
 
 function playNotification() {
     if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('FocusFlow', {
+        new Notification('Intention', {
             body: window.timerState.mode === 'work'
                 ? 'Work session complete! Take a break.'
                 : 'Break over! Time to focus.'
@@ -478,6 +542,8 @@ settingLongBreak.value = Math.round(DURATIONS.longBreak / 60);
 btnToggleSettings.addEventListener('click', () => {
     const isVisible = timerSettingsPanel.style.display !== 'none';
     timerSettingsPanel.style.display = isVisible ? 'none' : 'block';
+    // Highlight the gear while the panel is open, like an active mode tab.
+    btnToggleSettings.classList.toggle('active', !isVisible);
 });
 
 btnSaveSettings.addEventListener('click', () => {
@@ -498,6 +564,7 @@ btnSaveSettings.addEventListener('click', () => {
     }
 
     timerSettingsPanel.style.display = 'none';
+    btnToggleSettings.classList.remove('active');
 });
 
 // ===== Launch at Startup toggle (Electron only) =====

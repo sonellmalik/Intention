@@ -3,7 +3,7 @@
   "version": "1.2.2",
   "description": "Productivity tracker with Pomodoro timer, focus mode, and time blocking",
   "main": "main.js",
-  "author": "FocusFlow",
+  "author": "Intention",
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
@@ -14,7 +14,7 @@
   },
   "build": {
     "appId": "com.focusflow.app",
-    "productName": "FocusFlow",
+    "productName": "Intention",
     "directories": {
       "output": "dist"
     },
@@ -23,6 +23,7 @@
       "preload.js",
       "mini.html",
       "index.html",
+      "calendar.html",
       "greyscale-helper.ps1",
       "foreground-title.ps1",
       "list-windows.ps1",
@@ -54,7 +55,7 @@
       "category": "public.app-category.productivity"
     },
     "dmg": {
-      "title": "FocusFlow",
+      "title": "Intention",
       "contents": [
         {
           "x": 130,
@@ -73,16 +74,17 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "FocusFlow"
+      "shortcutName": "Intention"
     },
     "forceCodeSigning": false,
     "publish": {
       "provider": "github",
       "owner": "sonellmalik",
-      "repo": "focusflow"
+      "repo": "Intention"
     }
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
     "bonjour-service": "^1.4.4",
     "electron-updater": "^6.8.9",
     "qrcode": "^1.5.4",

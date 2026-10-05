@@ -1,0 +1,3 @@
+This directory holds the SwiftUI views (pairing, live session, local history,
+settings). Implemented in tasks 12 and 13. These live in the app target because
+they depend on SwiftUI/UIKit and require Xcode + an iOS SDK to build.

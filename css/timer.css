@@ -53,6 +53,21 @@
     color: var(--text);
 }
 
+/* Settings gear sits in the same tab row but reads as an action, not a mode.
+   Pushed to the right so it's slightly separated from Work/Break/Long. */
+.mode-tab-settings {
+    margin-left: auto;
+    font-size: 0.9rem;
+    line-height: 1;
+    padding: 0.35rem 0.5rem;
+}
+
+.mode-tab-settings.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
 .timer-display {
     font-size: 3.2rem;
     font-weight: 700;
@@ -670,4 +685,51 @@
 
 .pause-text {
     font-weight: 500;
+}
+
+/* ===== Background Sounds (generated brainwave tones) ===== */
+.bg-audio-status {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.bg-audio-status.playing {
+    color: #fff;
+    background: #4cc9f0;
+}
+
+.bg-sound-buttons {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.bg-sound-buttons .bg-sound-btn {
+    flex: 1;
+}
+
+.bg-sound-buttons .bg-sound-btn.active {
+    background: #4cc9f0;
+    border-color: #4cc9f0;
+    color: #0b0d17;
+}
+
+.bg-audio-volume-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+}
+
+.bg-audio-vol-icon {
+    font-size: 0.9rem;
+}
+
+.bg-audio-volume-row input[type="range"] {
+    flex: 1;
+    accent-color: var(--primary);
+    cursor: pointer;
 }

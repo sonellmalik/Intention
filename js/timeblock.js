@@ -311,11 +311,105 @@ function addTodo() {
     todoInput.value = '';
 }
 
-btnAddBreak.addEventListener('click', () => {
-    todos.push({ text: 'Scheduled Break', priority: 'normal', type: 'break', completed: false });
+// Add an item to the To-Do list from the scheduler/calendar "Also add to To-Do
+// list" checkbox. Skips duplicates of an existing active to-do. `type` 'break'
+// creates a break task; anything else a normal task.
+function addToTodoList(text, type) {
+    const t = (text || '').trim();
+    if (!t) return;
+    const exists = todos.some(x => x && !x.completed && (x.text || '').trim().toLowerCase() === t.toLowerCase());
+    if (exists) return;
+    todos.push({
+        text: t,
+        priority: 'normal',
+        type: type === 'break' ? 'break' : 'todo',
+        completed: false
+    });
     saveData('todos', todos);
     renderTodos();
+}
+
+// ===== Shared break types =====
+// The list of break kinds is shared between the To-Do "Break" menu and the
+// calendar's assign modal, and is persisted so user-added kinds survive reloads.
+const DEFAULT_BREAK_TYPES = [
+    'Squat break',
+    'Humming break',
+    'No-phone break',
+    'Stare out the window break',
+    'Music break'
+];
+let breakTypes = loadData('breakTypes', null);
+if (!Array.isArray(breakTypes) || breakTypes.length === 0) {
+    breakTypes = DEFAULT_BREAK_TYPES.slice();
+    saveData('breakTypes', breakTypes);
+}
+
+// Add a new break kind (from a user prompt). Returns the trimmed name if added,
+// or null if empty/duplicate. Re-renders any open break menus on success.
+function addBreakType(name) {
+    const trimmed = (name || '').trim();
+    if (!trimmed) return null;
+    const exists = breakTypes.some(b => b.toLowerCase() === trimmed.toLowerCase());
+    if (!exists) {
+        breakTypes.push(trimmed);
+        saveData('breakTypes', breakTypes);
+    }
+    renderBreakMenu();
+    return trimmed;
+}
+
+// Prompt the user for a new break kind, add it, and return the added name.
+function promptNewBreakType() {
+    const name = window.prompt('Name your new break type:');
+    return addBreakType(name);
+}
+
+// "Break" is a collapsible menu of break types. Clicking the header toggles the
+// list of options; picking an option adds it to the to-do list as a break task.
+const breakOptions = document.getElementById('break-options');
+let breakMenuExpanded = false;
+
+function setBreakMenuExpanded(expanded) {
+    breakMenuExpanded = expanded;
+    btnAddBreak.setAttribute('aria-expanded', String(expanded));
+    breakOptions.style.display = expanded ? 'block' : 'none';
+}
+
+// (Re)build the to-do Break menu from the shared break-types list, plus a
+// trailing "add new break type" action.
+function renderBreakMenu() {
+    if (!breakOptions) return;
+    breakOptions.innerHTML = breakTypes.map(b => `
+        <li><button class="break-option" data-break="${escapeHtml(b)}">${escapeHtml(b)}</button></li>
+    `).join('') + `
+        <li><button class="break-option break-option-add" data-action="add-break-type">&#43; Add new break type</button></li>`;
+
+    breakOptions.querySelectorAll('.break-option').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (btn.dataset.action === 'add-break-type') {
+                const added = promptNewBreakType();
+                if (added) {
+                    todos.push({ text: added, priority: 'normal', type: 'break', completed: false });
+                    saveData('todos', todos);
+                    renderTodos();
+                    setBreakMenuExpanded(false);
+                }
+                return;
+            }
+            todos.push({ text: btn.dataset.break, priority: 'normal', type: 'break', completed: false });
+            saveData('todos', todos);
+            renderTodos();
+            setBreakMenuExpanded(false);
+        });
+    });
+}
+
+btnAddBreak.addEventListener('click', () => {
+    setBreakMenuExpanded(!breakMenuExpanded);
 });
+
+renderBreakMenu();
 
 function escapeHtml(str) {
     const div = document.createElement('div');
@@ -331,8 +425,8 @@ const timeblockCalendar = document.getElementById('timeblock-calendar');
 // Config
 const CAL_START_HOUR = 6;   // 6 AM
 const CAL_END_HOUR = 23;    // 11 PM
-const SLOT_MINUTES = 10;    // 10-minute granularity
-const SLOT_HEIGHT = 14;     // px per 10-min slot
+const SLOT_MINUTES = 5;     // 5-minute granularity (drag-select + resize snapping)
+const SLOT_HEIGHT = 7;      // px per 5-min slot (keeps the same overall scale)
 
 // blocks: array of { id, start: minutesFromMidnight, end: minutesFromMidnight, task: string, type: 'todo'|'break' }
 let blocks = loadData('timeblocksV2', []);
@@ -471,34 +565,45 @@ if (btnClearBlocks) {
     });
 }
 
+// A single click selects a scheduler block; a double click opens the editor.
+// We debounce the single-click's re-render so a quick second click can cancel
+// it (otherwise the first click would re-render and swallow the dblclick).
+let _blockClickTimer = null;
+
+// Double-click a block (scheduler OR calendar) to open the editor.
+timeblockCalendar.addEventListener('dblclick', (e) => {
+    const blockEl = e.target.closest('.cal-block');
+    if (!blockEl) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (_blockClickTimer) { clearTimeout(_blockClickTimer); _blockClickTimer = null; }
+    if (blockEl.classList.contains('calendar-block')) {
+        startEditCalendarBlock(blockEl.dataset.calKey, blockEl.dataset.calId);
+    } else {
+        startEditBlock(blockEl.dataset.blockId);
+    }
+});
+
 timeblockCalendar.addEventListener('click', (e) => {
-    const removeBtn = e.target.closest('.cal-block-remove');
-    if (removeBtn) {
-        e.stopPropagation();
-        removeBlockById(removeBtn.dataset.blockId);
-        return;
-    }
-
-    const editBtn = e.target.closest('.cal-block-edit');
-    if (editBtn) {
-        e.stopPropagation();
-        startEditBlock(editBtn.dataset.blockId);
-        return;
-    }
-
     // Ignore clicks that originate on a resize handle (they belong to a resize gesture)
     if (e.target.closest('.cal-block-resize')) {
         e.stopPropagation();
         return;
     }
 
-    // Click on a block body selects it (reveals edit/remove)
+    // Single click on a scheduler block body selects it (shows the resize
+    // affordance/outline). Editing happens on double-click, so defer the
+    // selection re-render briefly and let a dblclick cancel it.
     const blockEl = e.target.closest('.cal-block');
-    if (blockEl) {
+    if (blockEl && !blockEl.classList.contains('calendar-block')) {
         e.stopPropagation();
         const id = blockEl.dataset.blockId;
-        selectedBlockId = (selectedBlockId === id) ? null : id;
-        renderTimeBlockCalendar();
+        if (_blockClickTimer) clearTimeout(_blockClickTimer);
+        _blockClickTimer = setTimeout(() => {
+            _blockClickTimer = null;
+            selectedBlockId = (selectedBlockId === id) ? null : id;
+            renderTimeBlockCalendar();
+        }, 220);
     }
 });
 
@@ -506,6 +611,8 @@ timeblockCalendar.addEventListener('click', (e) => {
 timeblockCalendar.addEventListener('contextmenu', (e) => {
     const blockEl = e.target.closest('.cal-block');
     if (!blockEl) return;
+    // Read-only calendar mirrors have no context menu (can't edit/remove here).
+    if (blockEl.classList.contains('calendar-block')) return;
     e.preventDefault();
     e.stopPropagation();
     openBlockContextMenu(blockEl.dataset.blockId, e.clientX, e.clientY);
@@ -592,6 +699,89 @@ function formatMinutes(mins) {
     return `${dh}:${String(m).padStart(2, '0')} ${ampm}`;
 }
 
+// Today's key in YYYY-MM-DD form (matches the full Calendar's keys)
+function todayCalendarKey() {
+    return toDateKey(new Date());
+}
+
+// Read the events the user created for TODAY on the full Calendar page. These
+// are mirrored (read-only) onto the scheduler so a task/event scheduled for
+// today shows up here as a time block. Shape: {id,start,end,task,type}.
+function getTodayCalendarEvents() {
+    const store = loadData('calendarEvents', {}) || {};
+    const arr = store[todayCalendarKey()] || [];
+    return arr
+        .filter(e => typeof e.start === 'number' && typeof e.end === 'number' && e.end > e.start)
+        .map(e => ({
+            id: 'cal_' + e.id,
+            start: e.start,
+            end: e.end,
+            task: e.task,
+            type: e.type || 'event',   // 'event' | 'todo' | 'break'
+            source: 'calendar',        // marks it read-only here
+            readOnly: true
+        }));
+}
+
+// Build the combined, positioned list of items to draw: the scheduler's own
+// blocks (editable) plus today's calendar events (read-only mirror). Each item
+// gets _col / _cols for side-by-side placement and _overlap when it shares time
+// with any other item, so overlaps can be visually distinguished.
+function computeCalendarLayout() {
+    const own = blocks.map(b => ({
+        id: b.id,
+        start: b.start,
+        end: b.end,
+        task: b.task,
+        type: b.type || 'todo',
+        source: 'scheduler',
+        readOnly: false,
+        _ref: b
+    }));
+    const cal = getTodayCalendarEvents();
+
+    const items = own.concat(cal).sort((a, b) => a.start - b.start || a.end - b.end);
+
+    // Cluster mutually-overlapping items, then assign greedy columns within each
+    // cluster (Teams-style). Mark every item that overlaps another.
+    let i = 0;
+    while (i < items.length) {
+        let clusterEnd = items[i].end;
+        const cluster = [items[i]];
+        let j = i + 1;
+        while (j < items.length && items[j].start < clusterEnd) {
+            cluster.push(items[j]);
+            clusterEnd = Math.max(clusterEnd, items[j].end);
+            j++;
+        }
+
+        const cols = []; // end time of the last event placed in each column
+        cluster.forEach(ev => {
+            let placed = false;
+            for (let c = 0; c < cols.length; c++) {
+                if (ev.start >= cols[c]) {
+                    ev._col = c;
+                    cols[c] = ev.end;
+                    placed = true;
+                    break;
+                }
+            }
+            if (!placed) {
+                ev._col = cols.length;
+                cols.push(ev.end);
+            }
+        });
+        const colCount = cols.length;
+        cluster.forEach(ev => {
+            ev._cols = colCount;
+            ev._overlap = cluster.length > 1; // more than one item sharing this span
+        });
+        i = j;
+    }
+
+    return items;
+}
+
 function renderTimeBlockCalendar() {
     timeblockCalendar.innerHTML = '';
 
@@ -624,9 +814,11 @@ function renderTimeBlockCalendar() {
     // Attach drag-select on the grid (delegated, robust against re-renders)
     attachGridSelection(grid);
 
-    // Render existing blocks as overlays
-    blocks.forEach((block) => {
-        renderBlock(block, grid);
+    // Render scheduler blocks + today's calendar events, positioned so overlaps
+    // sit side by side and are visually distinguished.
+    const laidOut = computeCalendarLayout();
+    laidOut.forEach((item) => {
+        renderBlock(item, grid);
     });
 
     // Current-time indicator line
@@ -636,6 +828,13 @@ function renderTimeBlockCalendar() {
     nowLine.innerHTML = '<span class="cal-now-dot"></span><span class="cal-now-label"></span>';
     grid.appendChild(nowLine);
     updateNowLine();
+
+    // Keep the mini timer overlay's "current task" label in sync with any
+    // scheduler/calendar change made in THIS window (storage events only fire
+    // in other windows).
+    if (typeof window.syncMiniTask === 'function') {
+        window.syncMiniTask();
+    }
 }
 
 // Position the "current time" indicator; hides it if outside the calendar range
@@ -695,33 +894,90 @@ function attachGridSelection(grid) {
     });
 }
 
-function renderBlock(block, grid) {
-    const startSlot = (block.start - CAL_START_HOUR * 60) / SLOT_MINUTES;
-    const endSlot = (block.end - CAL_START_HOUR * 60) / SLOT_MINUTES;
+// Human label for a block/event type shown as a small badge.
+function typeLabel(type) {
+    if (type === 'break') return 'Break';
+    if (type === 'event') return 'Event';
+    return 'Task';
+}
+
+// `item` is a positioned entry from computeCalendarLayout():
+//   { id, start, end, task, type, source, readOnly, _col, _cols, _overlap, _ref }
+// source 'scheduler' items are editable/resizable; source 'calendar' items are
+// read-only mirrors of today's full-Calendar events.
+function renderBlock(item, grid) {
+    const startSlot = (item.start - CAL_START_HOUR * 60) / SLOT_MINUTES;
+    const endSlot = (item.end - CAL_START_HOUR * 60) / SLOT_MINUTES;
     const top = startSlot * SLOT_HEIGHT;
     const height = (endSlot - startSlot) * SLOT_HEIGHT;
 
-    // Guarantee the block has an id so it can always be removed
-    if (!block.id) {
-        block.id = newBlockId();
+    const isCalendar = item.source === 'calendar';
+    const isBreak = item.type === 'break';
+    const isEvent = item.type === 'event';
+
+    // Guarantee scheduler blocks have an id so they can always be removed
+    if (!isCalendar && !item.id && item._ref) {
+        item._ref.id = newBlockId();
+        item.id = item._ref.id;
         saveData('timeblocksV2', blocks);
     }
 
+    const colCount = item._cols || 1;
+    const col = item._col || 0;
+    const widthPct = 100 / colCount;
+    const leftPct = widthPct * col;
+
     const el = document.createElement('div');
-    el.className = 'cal-block' + (block.type === 'break' ? ' break-block' : '')
-        + (selectedBlockId === block.id ? ' selected' : '');
+    el.className = 'cal-block'
+        + (isBreak ? ' break-block' : '')
+        + (isEvent ? ' event-block' : '')
+        + (isCalendar ? ' calendar-block' : '')
+        + (item._overlap ? ' overlapping' : '')
+        + ((!isCalendar && selectedBlockId === item.id) ? ' selected' : '');
+
     el.style.top = top + 'px';
     el.style.height = (height - 2) + 'px';
-    el.dataset.blockId = block.id;
+    // Horizontal placement: full width when alone, side-by-side when overlapping.
+    // Uses a small gutter (from CSS left var) plus a right inset per column.
+    el.style.left = `calc(54px + (100% - 58px) * ${leftPct / 100})`;
+    el.style.width = `calc((100% - 58px) * ${widthPct / 100} - 2px)`;
+    el.dataset.blockId = item.id;
+
+    const badge = `<span class="cal-block-type type-${isBreak ? 'break' : (isEvent ? 'event' : 'todo')}">${typeLabel(item.type)}</span>`;
+    const icon = isBreak ? '&#9749; ' : '';
+
+    // Editing is via double-click (opens the modal). No inline edit/delete
+    // buttons on the block itself, for a cleaner look.
+    el.title = 'Double-click to edit';
+
+    if (isCalendar) {
+        // Mirror of a full-Calendar event scheduled for today. It's now editable
+        // here too (double-click), with changes written back to the Calendar.
+        // The real calendar id (without our 'cal_' prefix) + today's key let the
+        // editor persist to focusflow_calendarEvents.
+        el.dataset.calId = String(item.id).replace(/^cal_/, '');
+        el.dataset.calKey = todayCalendarKey();
+        el.innerHTML = `
+            <div class="cal-block-inner">
+                <div class="cal-block-head">
+                    ${badge}
+                    <span class="cal-block-source" title="Scheduled on the Calendar for today">&#128197;</span>
+                </div>
+                <span class="cal-block-task">${icon}${escapeHtml(item.task)}</span>
+                <span class="cal-block-time">${formatMinutes(item.start)} – ${formatMinutes(item.end)}</span>
+            </div>`;
+        // Don't let a press start a drag-select on the grid behind it.
+        el.addEventListener('mousedown', (e) => e.stopPropagation());
+        grid.appendChild(el);
+        return;
+    }
+
     el.innerHTML = `
         <div class="cal-block-resize cal-block-resize-top" data-edge="top" title="Drag to change start time"></div>
         <div class="cal-block-inner">
-            <span class="cal-block-task">${block.type === 'break' ? '&#9749; ' : ''}${escapeHtml(block.task)}</span>
-            <span class="cal-block-time">${formatMinutes(block.start)} – ${formatMinutes(block.end)}</span>
-            <div class="cal-block-actions">
-                <button class="cal-block-edit" data-block-id="${block.id}" title="Edit">&#9998;</button>
-                <button class="cal-block-remove" data-block-id="${block.id}" title="Remove">&times;</button>
-            </div>
+            <div class="cal-block-head">${badge}</div>
+            <span class="cal-block-task">${icon}${escapeHtml(item.task)}</span>
+            <span class="cal-block-time">${formatMinutes(item.start)} – ${formatMinutes(item.end)}</span>
         </div>
         <div class="cal-block-resize cal-block-resize-bottom" data-edge="bottom" title="Drag to change end time"></div>
     `;
@@ -736,7 +992,7 @@ function renderBlock(block, grid) {
         handle.addEventListener('mousedown', (e) => {
             e.stopPropagation();
             e.preventDefault();
-            startBlockResize(block.id, handle.dataset.edge, e, el);
+            startBlockResize(item.id, handle.dataset.edge, e, el);
         });
     });
 
@@ -745,7 +1001,7 @@ function renderBlock(block, grid) {
 
 // ===== Teams-style block resizing =====
 // Drag a block's top or bottom edge to change its start/end time. Snaps to the
-// 10-minute slot grid and enforces a minimum one-slot duration.
+// 5-minute slot grid and enforces a minimum one-slot duration.
 let resizing = false;
 
 function startBlockResize(id, edge, e, el) {
@@ -811,62 +1067,219 @@ function startBlockResize(id, edge, e, el) {
     document.addEventListener('mouseup', onUp);
 }
 
+// Convert minutes-from-midnight to/from an <input type="time"> "HH:MM" value.
+function minsToHHMM(mins) {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+function hhmmToMins(str) {
+    const [h, m] = String(str).split(':').map(Number);
+    if (isNaN(h) || isNaN(m)) return null;
+    return h * 60 + m;
+}
+
+// Shared editor modal for a time block. Works for both scheduler blocks and
+// mirrored Calendar events; the caller supplies the initial values, a heading,
+// and onSave/onDelete callbacks that persist to the correct store.
+//
+// config: {
+//   heading, task, start, end, type,
+//   onSave({ task, start, end, type, addToTodo }),
+//   onDelete()
+// }
+function openBlockEditor(config) {
+    const gridStartMin = CAL_START_HOUR * 60;
+    const gridEndMin = CAL_END_HOUR * 60;
+
+    const modal = document.createElement('div');
+    modal.className = 'assign-modal';
+    modal.innerHTML = `
+        <div class="assign-modal-content block-edit-modal">
+            <h3>${escapeHtml(config.heading || 'Edit time block')}</h3>
+            <div class="block-edit-field">
+                <label for="block-edit-title">Title</label>
+                <input type="text" id="block-edit-title" placeholder="What's happening?">
+            </div>
+            <div class="block-edit-row">
+                <div class="block-edit-field">
+                    <label for="block-edit-start">Start</label>
+                    <input type="time" id="block-edit-start" step="60">
+                </div>
+                <div class="block-edit-field">
+                    <label for="block-edit-end">End</label>
+                    <input type="time" id="block-edit-end" step="60">
+                </div>
+            </div>
+            <div class="block-edit-field">
+                <label for="block-edit-type">Type</label>
+                <select id="block-edit-type">
+                    <option value="todo">Task</option>
+                    <option value="event">Event</option>
+                    <option value="break">Break</option>
+                </select>
+            </div>
+            <label class="add-to-todo-row">
+                <input type="checkbox" id="block-edit-add-todo">
+                Also add to To-Do list
+            </label>
+            <p class="block-edit-error" id="block-edit-error" style="display:none;"></p>
+            <div class="assign-modal-actions">
+                <button class="btn btn-ghost btn-small block-edit-delete" id="block-edit-delete">Delete</button>
+                <button class="btn btn-ghost btn-small" id="block-edit-cancel">Cancel</button>
+                <button class="btn btn-primary btn-small" id="block-edit-save">Save</button>
+            </div>
+        </div>`;
+    document.body.appendChild(modal);
+
+    const titleInput = modal.querySelector('#block-edit-title');
+    const startInput = modal.querySelector('#block-edit-start');
+    const endInput = modal.querySelector('#block-edit-end');
+    const typeInput = modal.querySelector('#block-edit-type');
+    const addTodoCheck = modal.querySelector('#block-edit-add-todo');
+    const errorEl = modal.querySelector('#block-edit-error');
+
+    // Prefill
+    titleInput.value = config.task || '';
+    startInput.value = minsToHHMM(config.start);
+    endInput.value = minsToHHMM(config.end);
+    typeInput.value = config.type || 'todo';
+
+    // Keep modal interactions from reaching the calendar's drag-select handlers
+    modal.addEventListener('mousedown', (e) => e.stopPropagation());
+
+    // Typeahead over priorities + active to-dos (word-overlap matching).
+    let suggestCtl = null;
+    if (window.taskSuggest && typeof window.taskSuggest.attach === 'function') {
+        suggestCtl = window.taskSuggest.attach({
+            input: titleInput,
+            onPick: (item) => {
+                if (item.type === 'break') typeInput.value = 'break';
+                else if (typeInput.value === 'break') typeInput.value = 'todo';
+            }
+        });
+    }
+
+    setTimeout(() => { titleInput.focus(); titleInput.select(); }, 0);
+
+    function showError(msg) {
+        errorEl.textContent = msg;
+        errorEl.style.display = 'block';
+    }
+
+    function finish() {
+        if (suggestCtl) suggestCtl.destroy();
+        modal.remove();
+        selectedBlockId = null;
+        renderTimeBlockCalendar();
+    }
+
+    function save() {
+        const t = titleInput.value.trim();
+        const s = hhmmToMins(startInput.value);
+        const en = hhmmToMins(endInput.value);
+
+        if (!t) { showError('Please enter a title.'); titleInput.focus(); return; }
+        if (s == null || en == null) { showError('Please enter valid start and end times.'); return; }
+        if (en <= s) { showError('End time must be after the start time.'); return; }
+        if (s < gridStartMin || en > gridEndMin) {
+            showError(`Times must be between ${formatMinutes(gridStartMin)} and ${formatMinutes(gridEndMin)}.`);
+            return;
+        }
+
+        config.onSave({
+            task: t,
+            start: s,
+            end: en,
+            type: typeInput.value,
+            addToTodo: !!(addTodoCheck && addTodoCheck.checked)
+        });
+        finish();
+    }
+
+    modal.querySelector('#block-edit-save').addEventListener('click', save);
+    modal.querySelector('#block-edit-cancel').addEventListener('click', finish);
+    modal.querySelector('#block-edit-delete').addEventListener('click', () => {
+        if (suggestCtl) suggestCtl.destroy();
+        modal.remove();
+        if (typeof config.onDelete === 'function') config.onDelete();
+        else renderTimeBlockCalendar();
+    });
+
+    titleInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); save(); }
+    });
+    modal.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { e.preventDefault(); finish(); }
+    });
+
+    // Backdrop-dismiss, but ignore the opening gesture's trailing click
+    const openedAt = Date.now();
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal && Date.now() - openedAt > 300) finish();
+    });
+}
+
+// Edit a scheduler block (persists to timeblocksV2). Opened by double-click.
 function startEditBlock(id) {
     const block = blocks.find(b => b.id === id);
     if (!block) return;
 
-    const blockEl = timeblockCalendar.querySelector(`.cal-block[data-block-id="${id}"]`);
-    if (!blockEl) return;
-
-    // While editing, mark the block so the resize handles are disabled. The
-    // absolutely-positioned handles sit above the block content, so on short
-    // blocks they cover the input and swallow clicks/focus — making it seem like
-    // you can only erase (the field keeps its initial focus) but not click/type.
-    blockEl.classList.add('editing');
-
-    const taskSpan = blockEl.querySelector('.cal-block-task');
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'edit-input cal-block-edit-input';
-    input.value = block.task;
-
-    // Stop mousedown/clicks inside the input from bubbling to selection logic
-    input.addEventListener('mousedown', (e) => e.stopPropagation());
-    input.addEventListener('click', (e) => e.stopPropagation());
-
-    taskSpan.replaceWith(input);
-    input.focus();
-    input.select();
-
-    let committed = false;
-    const commit = () => {
-        if (committed) return;
-        committed = true;
-        const newText = input.value.trim();
-        if (newText) {
-            block.task = newText;
+    openBlockEditor({
+        heading: 'Edit time block',
+        task: block.task,
+        start: block.start,
+        end: block.end,
+        type: block.type || 'todo',
+        onSave: ({ task, start, end, type, addToTodo }) => {
+            block.task = task;
+            block.start = start;
+            block.end = end;
+            block.type = type;
+            blocks.sort((a, b) => a.start - b.start);
             saveData('timeblocksV2', blocks);
-        }
-        selectedBlockId = null;
-        renderTimeBlockCalendar();
-    };
-
-    const cancel = () => {
-        if (committed) return;
-        committed = true;
-        selectedBlockId = null;
-        renderTimeBlockCalendar();
-    };
-
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') { e.preventDefault(); commit(); }
-        else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+            if (addToTodo) addToTodoList(task, type);
+        },
+        onDelete: () => removeBlockById(id)
     });
+}
 
-    // Attach blur after a tick so the initial focus doesn't immediately blur-commit
-    setTimeout(() => {
-        input.addEventListener('blur', commit);
-    }, 50);
+// Edit a Calendar event that's mirrored onto today's scheduler. Persists back
+// to focusflow_calendarEvents so the change shows on the Calendar too. Opened
+// by double-click on a `.calendar-block`.
+function startEditCalendarBlock(key, calId) {
+    if (!key || !calId) return;
+    const store = loadData('calendarEvents', {}) || {};
+    const arr = store[key] || [];
+    const ev = arr.find(e => String(e.id) === String(calId));
+    if (!ev) return;
+
+    openBlockEditor({
+        heading: 'Edit calendar item',
+        task: ev.task,
+        start: ev.start,
+        end: ev.end,
+        type: ev.type || 'event',
+        onSave: ({ task, start, end, type, addToTodo }) => {
+            const s = loadData('calendarEvents', {}) || {};
+            const list = s[key] || [];
+            const idx = list.findIndex(e => String(e.id) === String(calId));
+            if (idx !== -1) {
+                list[idx] = { ...list[idx], task, start, end, type };
+                list.sort((a, b) => a.start - b.start);
+                s[key] = list;
+                saveData('calendarEvents', s);
+            }
+            if (addToTodo) addToTodoList(task, type);
+        },
+        onDelete: () => {
+            const s = loadData('calendarEvents', {}) || {};
+            s[key] = (s[key] || []).filter(e => String(e.id) !== String(calId));
+            saveData('calendarEvents', s);
+            renderTimeBlockCalendar();
+        }
+    });
 }
 
 function updateSelectionHighlight() {
@@ -923,9 +1336,20 @@ function openAssignModal(startMin, endMin) {
                     ${t.type === 'break' ? '&#9749; ' : ''}${escapeHtml(t.text)}
                 </div>
             `).join('')}
+            <div class="break-menu assign-break-menu">
+                <button class="btn btn-ghost btn-small btn-add-break" id="assign-break-toggle" aria-expanded="false" aria-controls="assign-break-options" type="button">
+                    <span>&#9749; Break</span>
+                    <span class="break-menu-arrow">&#9662;</span>
+                </button>
+                <ul class="break-options" id="assign-break-options" style="display:none;"></ul>
+            </div>
             <div class="assign-custom">
                 <input type="text" id="assign-custom-input" placeholder="Or type a custom entry...">
             </div>
+            <label class="add-to-todo-row">
+                <input type="checkbox" id="assign-add-todo">
+                Also add to To-Do list
+            </label>
             <div class="assign-modal-actions">
                 <button class="btn btn-primary btn-small" id="assign-confirm">Add</button>
                 <button class="btn btn-ghost btn-small" id="assign-cancel">Cancel</button>
@@ -936,6 +1360,7 @@ function openAssignModal(startMin, endMin) {
     document.body.appendChild(modal);
 
     const customInput = modal.querySelector('#assign-custom-input');
+    const assignAddTodoCheck = modal.querySelector('#assign-add-todo');
 
     // Make sure interactions inside the modal never reach the calendar's
     // global drag-select handlers (which can steal focus from the input).
@@ -946,11 +1371,32 @@ function openAssignModal(startMin, endMin) {
         });
     }
 
+    // Typeahead on the custom-entry field: suggest priorities + active to-dos by
+    // word overlap so a similarly-worded existing task surfaces even here. When
+    // a break-type suggestion is picked, remember to commit it as a break.
+    let assignCustomType = 'todo';
+    let assignSuggestCtl = null;
+    if (customInput && window.taskSuggest && typeof window.taskSuggest.attach === 'function') {
+        assignSuggestCtl = window.taskSuggest.attach({
+            input: customInput,
+            onPick: (item) => { assignCustomType = (item.type === 'break') ? 'break' : 'todo'; }
+        });
+    }
+    // Typing after a pick reverts to a normal task type.
+    if (customInput) {
+        customInput.addEventListener('input', () => { assignCustomType = 'todo'; });
+    }
+
     function commitBlock(task, type) {
         if (!task || !task.trim()) return;
-        blocks.push({ id: newBlockId(), start: startMin, end: endMin, task: task.trim(), type: type || 'todo' });
+        const finalType = type || 'todo';
+        blocks.push({ id: newBlockId(), start: startMin, end: endMin, task: task.trim(), type: finalType });
         blocks.sort((a, b) => a.start - b.start);
         saveData('timeblocksV2', blocks);
+        if (assignAddTodoCheck && assignAddTodoCheck.checked) {
+            addToTodoList(task, finalType);
+        }
+        if (assignSuggestCtl) assignSuggestCtl.destroy();
         renderTimeBlockCalendar();
         modal.remove();
     }
@@ -961,11 +1407,46 @@ function openAssignModal(startMin, endMin) {
         });
     });
 
-    modal.querySelector('#assign-confirm').addEventListener('click', () => {
-        commitBlock(customInput.value, 'todo');
+    // Collapsible Break menu inside the assign modal: same break types as the
+    // To-Do list, plus an "add new break type" action. Picking one creates a
+    // break block for the selected time range.
+    const assignBreakToggle = modal.querySelector('#assign-break-toggle');
+    const assignBreakOptions = modal.querySelector('#assign-break-options');
+    let assignBreakExpanded = false;
+
+    function setAssignBreakExpanded(expanded) {
+        assignBreakExpanded = expanded;
+        assignBreakToggle.setAttribute('aria-expanded', String(expanded));
+        assignBreakOptions.style.display = expanded ? 'block' : 'none';
+    }
+
+    function renderAssignBreakOptions() {
+        // Only existing break types are selectable here. New break kinds can
+        // only be created from the To-Do list's Break menu on the scheduler page.
+        assignBreakOptions.innerHTML = breakTypes.map(b => `
+            <li><button class="break-option" type="button" data-break="${escapeHtml(b)}">${escapeHtml(b)}</button></li>
+        `).join('');
+
+        assignBreakOptions.querySelectorAll('.break-option').forEach(btn => {
+            btn.addEventListener('click', () => {
+                commitBlock(btn.dataset.break, 'break');
+            });
+        });
+    }
+
+    assignBreakToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setAssignBreakExpanded(!assignBreakExpanded);
     });
-    customInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') commitBlock(customInput.value, 'todo');
+    renderAssignBreakOptions();
+
+    modal.querySelector('#assign-confirm').addEventListener('click', () => {
+        commitBlock(customInput.value, assignCustomType);
+    });
+    // keydown (not keypress) so the typeahead's Enter-to-pick can suppress this
+    // via stopImmediatePropagation when a suggestion is highlighted.
+    customInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') commitBlock(customInput.value, assignCustomType);
     });
 
     modal.querySelector('#assign-cancel').addEventListener('click', () => modal.remove());
@@ -1004,3 +1485,23 @@ window.scrollTimeBlockToNow = function() {
 renderTimeBlockCalendar();
 // Scroll to now on initial load
 setTimeout(() => window.scrollTimeBlockToNow(), 0);
+
+// ===== Keep the scheduler in sync with the full Calendar =====
+// The Calendar can run in a separate window; when it writes today's events to
+// localStorage, this window receives a `storage` event and re-renders so newly
+// scheduled tasks/events appear here immediately.
+window.addEventListener('storage', (e) => {
+    if (e.key === 'focusflow_calendarEvents') {
+        renderTimeBlockCalendar();
+    }
+});
+
+// Also re-read on focus/visibility, in case the storage event was missed (e.g.
+// the calendar window wrote while this one was fully backgrounded).
+window.addEventListener('focus', () => renderTimeBlockCalendar());
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) renderTimeBlockCalendar();
+});
+
+// Public hook so app.js can force a refresh when the Scheduler page is shown.
+window.refreshTimeBlockCalendar = renderTimeBlockCalendar;

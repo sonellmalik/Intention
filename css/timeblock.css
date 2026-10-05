@@ -205,6 +205,68 @@
     border-style: dashed;
 }
 
+/* ===== Break collapsible menu ===== */
+.break-menu {
+    margin-bottom: 0.8rem;
+}
+
+.break-menu .btn-add-break {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-bottom: 0;
+}
+
+.break-menu-arrow {
+    transition: transform 0.2s ease;
+    font-size: 0.75rem;
+}
+
+.btn-add-break[aria-expanded="true"] .break-menu-arrow {
+    transform: rotate(180deg);
+}
+
+.break-options {
+    list-style: none;
+    margin: 0.4rem 0 0;
+    padding: 0.3rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius, 8px);
+    background: rgba(76, 201, 240, 0.05);
+}
+
+.break-options li {
+    margin: 0;
+}
+
+.break-option {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.45rem 0.6rem;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 0.85rem;
+    text-align: left;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.break-option::before {
+    content: "\2615";
+    margin-right: 0.5rem;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.break-option:hover {
+    background: rgba(76, 201, 240, 0.15);
+    color: var(--primary);
+}
+
 /* Break item in to-do list */
 .todo-item.is-break {
     background: rgba(76, 201, 240, 0.06);
@@ -427,10 +489,11 @@
     pointer-events: none;
 }
 
-/* Assigned block overlay */
+/* Assigned block overlay. Horizontal placement (left/width) is set inline by
+   JS so overlapping items can sit side by side; alone, a block fills the width. */
 .cal-block {
     position: absolute;
-    left: 54px;
+    left: 54px;   /* fallback; JS overrides left/width inline */
     right: 4px;
     background: rgba(67, 97, 238, 0.9);
     color: white;
@@ -440,9 +503,71 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 
+/* Task = default blue. Break = teal. Event = purple. */
 .cal-block.break-block {
     background: rgba(76, 201, 240, 0.92);
     color: #08303f;
+}
+
+.cal-block.event-block {
+    background: rgba(114, 9, 183, 0.9);
+    color: white;
+}
+
+/* Mirror of a Calendar event scheduled for today. Slightly lighter with a
+   dashed outline so it reads as "planned on the Calendar". It's editable here
+   too (double-click), with changes written back to the Calendar. */
+.cal-block.calendar-block {
+    opacity: 0.94;
+    border: 1px dashed rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+}
+
+/* Overlap distinction: when a block shares its time with another, make it
+   translucent and add a white outline so both remain readable through each
+   other and the overlap is obvious. */
+.cal-block.overlapping {
+    opacity: 0.82;
+    outline: 1px solid rgba(255, 255, 255, 0.75);
+    outline-offset: -1px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+}
+
+.cal-block.overlapping.calendar-block {
+    opacity: 0.8;
+}
+
+/* Type badge (Task / Event / Break) + source icon row */
+.cal-block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    margin-bottom: 1px;
+}
+
+.cal-block-type {
+    display: inline-block;
+    font-size: 0.54rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    padding: 0 4px;
+    line-height: 1.4;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.28);
+    color: inherit;
+    flex-shrink: 0;
+}
+
+.cal-block.break-block .cal-block-type {
+    background: rgba(8, 48, 63, 0.18);
+}
+
+.cal-block-source {
+    font-size: 0.6rem;
+    opacity: 0.85;
+    flex-shrink: 0;
 }
 
 .cal-block-inner {
@@ -529,16 +654,9 @@ body.cal-resizing * {
     user-select: none;
 }
 
-/* Action buttons (edit + remove) — hidden until block is selected */
-.cal-block-actions {
-    position: absolute;
-    top: 1px;
-    right: 3px;
-    display: none;
-    gap: 2px;
-    align-items: center;
-}
-
+/* Selected scheduler block: outline + shows the resize affordance. Editing is
+   done via double-click (opens the editor modal), so there are no inline
+   edit/remove buttons on the block anymore. */
 .cal-block.selected {
     outline: 2px solid #fff;
     outline-offset: -2px;
@@ -551,49 +669,13 @@ body.cal-resizing * {
     overflow: visible;
 }
 
-.cal-block.selected .cal-block-actions {
-    display: flex;
+/* Break menu inside the assign modal */
+.assign-break-menu {
+    margin: 0.6rem 0 0;
 }
 
-.cal-block-edit,
-.cal-block-remove {
-    background: rgba(255, 255, 255, 0.25);
-    border: none;
-    color: inherit;
-    cursor: pointer;
-    font-size: 0.8rem;
-    line-height: 1;
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-}
-
-.cal-block-edit:hover,
-.cal-block-remove:hover {
-    background: rgba(255, 255, 255, 0.5);
-}
-
-.cal-block-edit-input {
-    width: 100%;
-    font-size: 0.72rem;
-    color: var(--text);
-    position: relative;
-    z-index: 9; /* sit above the resize handles while editing */
-}
-
-/* While a block is being edited, its resize handles must not intercept clicks
-   or focus (they overlap the input on short blocks). */
-.cal-block.editing .cal-block-resize {
-    pointer-events: none;
-}
-
-.cal-block.editing .cal-block-inner {
-    position: relative;
-    z-index: 9;
+.assign-break-menu .btn-add-break {
+    margin-bottom: 0;
 }
 
 /* Custom assign input in modal */
@@ -832,4 +914,52 @@ body.cal-resizing * {
 
 .plan-day-actions .btn {
     flex: 1;
+}
+
+/* ===== Time-block Edit Modal (title + start/end time + type) ===== */
+.block-edit-modal {
+    max-width: 340px;
+}
+
+.block-edit-field {
+    margin-bottom: 0.6rem;
+}
+
+.block-edit-field label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.block-edit-field input,
+.block-edit-field select {
+    width: 100%;
+}
+
+.block-edit-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.block-edit-row .block-edit-field {
+    flex: 1;
+}
+
+.block-edit-error {
+    color: var(--accent);
+    font-size: 0.72rem;
+    margin: 0 0 0.6rem;
+}
+
+.assign-modal-content .assign-modal-actions .block-edit-delete {
+    flex: 0 0 auto;
+    color: var(--accent);
+    border-color: var(--border);
+}
+
+.assign-modal-content .assign-modal-actions .block-edit-delete:hover {
+    background: rgba(247, 37, 133, 0.08);
+    border-color: var(--accent);
 }

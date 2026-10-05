@@ -1,0 +1,2 @@
+This directory holds the pickup-detection layer (PickupDetector protocol and
+LifecyclePickupDetector). Implemented in task 2.

@@ -1,5 +1,5 @@
 # Prints the title of the current foreground window (one line) to stdout.
-# Used by FocusFlow to decide whether the chosen work window is active.
+# Used by Intention to decide whether the chosen work window is active.
 
 $ErrorActionPreference = 'SilentlyContinue'
 

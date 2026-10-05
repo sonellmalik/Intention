@@ -39,13 +39,17 @@ body {
 
 /* Focus Mode note: the greyscale effect is applied to the ENTIRE screen at the
    OS level via the Windows Magnification API (see main.js + greyscale-helper.ps1),
-   not with a CSS filter. The FocusFlow window greys along with everything else. */
+   not with a CSS filter. The Intention window greys along with everything else. */
 
 /* ===== Navigation ===== */
 .nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    /* Allow the nav to wrap onto a second row in the narrow (quarter-width)
+       window so no item (e.g. the Account button) overflows off-screen. */
+    flex-wrap: wrap;
+    gap: 0.3rem 0.5rem;
     padding: 0.6rem 0.8rem;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
@@ -64,6 +68,7 @@ body {
 
 .nav-links {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.2rem;
 }
 
@@ -345,4 +350,98 @@ h4 {
 .update-toast-close:hover {
     color: var(--accent);
     background: rgba(247, 37, 133, 0.08);
+}
+
+/* ===== Task Suggestion Typeahead (shared: scheduler + calendar) ===== */
+.task-suggest-host {
+    position: relative;
+    width: 100%;
+}
+
+.task-suggest-menu {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    margin-top: 2px;
+    z-index: 50;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+    padding: 3px;
+    max-height: 190px;
+    overflow-y: auto;
+}
+
+.task-suggest-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 0.4rem 0.55rem;
+    border-radius: 6px;
+    font-family: var(--font);
+    font-size: 0.8rem;
+    color: var(--text);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.task-suggest-item:hover,
+.task-suggest-item.active {
+    background: rgba(67, 97, 238, 0.08);
+    color: var(--primary);
+}
+
+.task-suggest-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.task-suggest-kind {
+    flex-shrink: 0;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    padding: 0.05rem 0.35rem;
+    border-radius: 4px;
+    background: rgba(67, 97, 238, 0.12);
+    color: var(--primary);
+}
+
+.task-suggest-kind.kind-priority {
+    background: var(--primary);
+    color: #fff;
+}
+
+.task-suggest-kind.kind-break {
+    background: rgba(76, 201, 240, 0.2);
+    color: #2196c4;
+}
+
+/* "Also add to To-Do list" checkbox row (shared) */
+.add-to-todo-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0.2rem 0 0.1rem;
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+}
+
+.add-to-todo-row input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+    accent-color: var(--primary);
+    cursor: pointer;
 }

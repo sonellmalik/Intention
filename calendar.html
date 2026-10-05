@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intention - Calendar</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/calendar.css">
+    <style>
+        /* Standalone calendar window: fill the whole window, no nav bar. */
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Full-bleed wrapper that fills the entire OS window. */
+        .cal-window {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            box-sizing: border-box;
+            padding: 0.8rem 1rem 1rem;
+        }
+
+        .cal-window-title {
+            flex: 0 0 auto;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.4rem;
+        }
+
+        /* The calendar host fills all remaining space and full width. */
+        #page-calendar {
+            display: flex;
+            flex: 1 1 auto;
+            min-height: 0;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            max-width: none;
+        }
+
+        #page-calendar .calendar-page {
+            height: auto;      /* override the app's fixed height calc */
+            min-height: 0;
+            flex: 1 1 auto;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="cal-window">
+        <div class="cal-window-title">Intention · Calendar</div>
+
+        <!-- Same markup the in-app calendar page uses, so calendar.js works as-is -->
+        <div id="page-calendar">
+            <div class="calendar-page">
+                <header class="cw-toolbar">
+                    <div class="cw-toolbar-left">
+                        <button class="btn btn-ghost btn-small" id="cw-today">Today</button>
+                        <div class="cw-nav">
+                            <button class="btn btn-ghost btn-small" id="cw-prev" title="Previous">&larr;</button>
+                            <button class="btn btn-ghost btn-small" id="cw-next" title="Next">&rarr;</button>
+                        </div>
+                        <span class="cw-range" id="cw-range"></span>
+                    </div>
+                    <div class="cw-toolbar-right">
+                        <div class="cw-view-toggle" id="cw-view-toggle">
+                            <button class="cw-view-btn active" data-view="week">Week</button>
+                            <button class="cw-view-btn" data-view="day">Day</button>
+                        </div>
+                        <button class="btn btn-primary btn-small" id="cw-add-event" title="Add an event">+ Event</button>
+                    </div>
+                </header>
+                <p class="cw-hint">Click and drag on any day to create an event. Click an event to edit it.</p>
+                <div class="cw-calendar" id="cw-calendar"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/task-suggest.js"></script>
+    <script src="js/calendar.js"></script>
+</body>
+</html>

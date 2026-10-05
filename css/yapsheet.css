@@ -1,0 +1,196 @@
+/* ===== Yap Sheet ===== */
+/* A running document for jotting stray thoughts while working. Entries are
+   grouped by the date they were written, newest day first. Opens as a
+   full-screen overlay so the user can dump a thought and get back to work. */
+
+.yapsheet-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99000;
+    background: rgba(11, 13, 23, 0.96);
+    backdrop-filter: blur(6px);
+    display: none;
+    flex-direction: column;
+    color: #e8ecf5;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.yapsheet-overlay.active {
+    display: flex;
+}
+
+.yapsheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 1.4rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    flex-shrink: 0;
+}
+
+.yapsheet-title {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.yapsheet-title h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.yapsheet-title p {
+    font-size: 0.78rem;
+    color: rgba(232, 236, 245, 0.5);
+    margin: 0;
+}
+
+.yapsheet-close {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #e8ecf5;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.yapsheet-close:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+/* Composer: where the user types a new thought */
+.yapsheet-composer {
+    display: flex;
+    gap: 0.6rem;
+    padding: 1rem 1.4rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    flex-shrink: 0;
+}
+
+.yapsheet-composer textarea {
+    flex: 1;
+    resize: none;
+    min-height: 44px;
+    max-height: 140px;
+    padding: 0.6rem 0.8rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+    color: #e8ecf5;
+    font-family: inherit;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.yapsheet-composer textarea:focus {
+    outline: none;
+    border-color: rgba(76, 201, 240, 0.6);
+}
+
+.yapsheet-add-btn {
+    align-self: flex-end;
+    background: rgba(76, 201, 240, 0.2);
+    border: 1px solid rgba(76, 201, 240, 0.45);
+    color: #e8ecf5;
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.yapsheet-add-btn:hover {
+    background: rgba(76, 201, 240, 0.35);
+}
+
+/* Scrollable log of thoughts, grouped by date */
+.yapsheet-log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 1.4rem 2rem;
+}
+
+.yapsheet-empty {
+    color: rgba(232, 236, 245, 0.4);
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.yapsheet-day {
+    margin-bottom: 1.4rem;
+}
+
+.yapsheet-day-label {
+    position: sticky;
+    top: 0;
+    background: rgba(11, 13, 23, 0.96);
+    padding: 0.3rem 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #4cc9f0;
+    border-bottom: 1px solid rgba(76, 201, 240, 0.15);
+    margin-bottom: 0.6rem;
+}
+
+.yapsheet-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.yapsheet-entry-time {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    color: rgba(232, 236, 245, 0.4);
+    font-variant-numeric: tabular-nums;
+    padding-top: 0.1rem;
+    min-width: 62px;
+}
+
+.yapsheet-entry-text {
+    flex: 1;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: rgba(232, 236, 245, 0.9);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.yapsheet-entry-delete {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: rgba(232, 236, 245, 0.3);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0.1rem 0.3rem;
+    transition: color 0.2s;
+    opacity: 0;
+}
+
+.yapsheet-entry:hover .yapsheet-entry-delete {
+    opacity: 1;
+}
+
+.yapsheet-entry-delete:hover {
+    color: #f72585;
+}
+
+/* The "Yap Sheet" button in the Focus Mode section */
+.btn-yapsheet {
+    width: 100%;
+    margin-top: 0.4rem;
+}

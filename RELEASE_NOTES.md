@@ -1,4 +1,4 @@
-# FocusFlow v1.1.0
+# Intention v1.1.0
 
 A major feature update focused on flexible time-blocking, deeper focus tools, and daily automation.
 

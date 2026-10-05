@@ -1,0 +1,166 @@
+/* ===== Box Breathing Refocus Overlay ===== */
+/* A full-screen, minimalistic overlay that guides 4-4-4-4 box breathing.
+   Covers everything so the user isn't distracted by on-screen content. */
+
+.breathing-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    background: #0b0d17;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+    color: #e8ecf5;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-app-region: no-drag;
+    user-select: none;
+}
+
+.breathing-overlay.active {
+    display: flex;
+}
+
+/* Phase word: Breathe in / Hold / Breathe out / Hold */
+.breathing-phase {
+    font-size: 1.6rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: rgba(232, 236, 245, 0.85);
+    min-height: 1.6rem;
+    text-align: center;
+}
+
+/* The animated box the user follows with their breath */
+.breathing-box-wrap {
+    position: relative;
+    width: 240px;
+    height: 240px;
+}
+
+.breathing-box {
+    position: absolute;
+    inset: 0;
+    border: 2px solid rgba(76, 201, 240, 0.35);
+    border-radius: 18px;
+    box-shadow: 0 0 40px rgba(76, 201, 240, 0.12);
+}
+
+/* The dot travels clockwise around the box, one edge per 4s phase. */
+.breathing-dot {
+    position: absolute;
+    top: -9px;
+    left: -9px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #4cc9f0;
+    box-shadow: 0 0 18px 4px rgba(76, 201, 240, 0.6);
+    /* Position is driven by JS via translate; transition gives smooth travel. */
+    transition: transform 4s linear;
+    transform: translate(0, 0);
+}
+
+/* Cycle counter under the box */
+.breathing-count {
+    font-size: 0.95rem;
+    color: rgba(232, 236, 245, 0.5);
+    letter-spacing: 0.03em;
+    min-height: 1rem;
+}
+
+/* Controls row: stop-at-5 checkbox + End button */
+.breathing-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+    margin-top: 0.5rem;
+}
+
+.breathing-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: rgba(232, 236, 245, 0.6);
+    cursor: pointer;
+}
+
+.breathing-check input {
+    width: 15px;
+    height: 15px;
+    accent-color: #4cc9f0;
+    cursor: pointer;
+}
+
+.breathing-end-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #e8ecf5;
+    padding: 0.5rem 1.6rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.breathing-end-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.breathing-end-btn.hidden {
+    display: none;
+}
+
+/* Final "Now, let's get into it:" screen */
+.breathing-outro {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+    padding: 0 2rem;
+    animation: breathing-fade-in 0.6s ease;
+}
+
+.breathing-outro.active {
+    display: flex;
+}
+
+.breathing-outro-lead {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: rgba(232, 236, 245, 0.85);
+}
+
+.breathing-outro-task {
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: #4cc9f0;
+    max-width: 80vw;
+    word-break: break-word;
+}
+
+/* Hide the breathing UI while the outro shows */
+.breathing-overlay.showing-outro .breathing-phase,
+.breathing-overlay.showing-outro .breathing-box-wrap,
+.breathing-overlay.showing-outro .breathing-count,
+.breathing-overlay.showing-outro .breathing-controls {
+    display: none;
+}
+
+@keyframes breathing-fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Refocus button (timer page + mini window share the look) */
+.btn-refocus {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}

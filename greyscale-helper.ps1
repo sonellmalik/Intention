@@ -1,4 +1,4 @@
-# FocusFlow full-screen greyscale helper
+# Intention full-screen greyscale helper
 # Uses the Windows Magnification API (MagSetFullscreenColorEffect) to apply a
 # grayscale color matrix to the ENTIRE screen (all windows, taskbar, desktop).
 #

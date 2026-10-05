@@ -1,11 +1,15 @@
-const { app, BrowserWindow, ipcMain, screen, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, shell, safeStorage } = require('electron');
 const path = require('path');
 const { exec, spawn } = require('child_process');
+const { createSessionStore } = require('./js/auth/session-store');
+// Note: `fs` is required once lower in this file (near the startup-pref store)
+// and reused by the session store below; both run after module load.
 const { autoUpdater } = require('electron-updater');
 const { DesktopSyncServer, buildSessionStarted, buildSessionStopped } = require('./js/desktop-sync-server');
 
 let mainWindow = null;
 let miniWindow = null;
+let calendarWindow = null;
 let focusWindowPollingInterval = null;
 
 // ===== iOS Focus Companion sync server =====
@@ -54,7 +58,11 @@ function createMainWindow() {
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
-            nodeIntegration: false
+            nodeIntegration: false,
+            // Keep timers/media running when the window is minimized so the
+            // background YouTube audio doesn't stall during a focus session
+            // (starting the timer minimizes this window).
+            backgroundThrottling: false
         }
     });
 
@@ -65,6 +73,10 @@ function createMainWindow() {
         if (miniWindow) {
             miniWindow.close();
             miniWindow = null;
+        }
+        if (calendarWindow && !calendarWindow.isDestroyed()) {
+            calendarWindow.close();
+            calendarWindow = null;
         }
         // Always restore color on exit
         disableFocusMode();
@@ -81,9 +93,9 @@ function createMiniWindow() {
         width: 270,
         // Starts compact; the renderer measures its content and asks to resize
         // (grows upward from the bottom-left anchor) when a task line is shown.
-        height: 70,
+        height: 100,
         x: 20,
-        y: screenHeight - 100,
+        y: screenHeight - 130,
         resizable: false,
         frame: false,
         transparent: true,
@@ -103,6 +115,63 @@ function createMiniWindow() {
     miniWindow.on('closed', () => {
         miniWindow = null;
     });
+}
+
+// ===== Standalone Calendar Window =====
+// The full calendar opens as its OWN top-level window that fills the whole
+// screen, independent of the narrow main Intention window. It can be closed on
+// its own without affecting the main app. Because it loads from the same file
+// origin, it shares localStorage (focusflow_ keys) with the main window, so
+// events created here show up everywhere.
+function createCalendarWindow() {
+    try {
+        // If it already exists, just focus/restore it instead of opening a second one.
+        if (calendarWindow && !calendarWindow.isDestroyed()) {
+            if (calendarWindow.isMinimized()) calendarWindow.restore();
+            calendarWindow.show();
+            calendarWindow.focus();
+            return;
+        }
+
+        const primary = screen.getPrimaryDisplay();
+        const { width: screenWidth, height: screenHeight } = primary.workAreaSize;
+
+        calendarWindow = new BrowserWindow({
+            width: screenWidth,
+            height: screenHeight,
+            x: 0,
+            y: 0,
+            title: 'Intention - Calendar',
+            show: false,              // show once maximized to avoid a flash
+            frame: true,
+            resizable: true,
+            // Do NOT inherit the main window's hiddenInset/maxWidth constraints.
+            webPreferences: {
+                preload: path.join(__dirname, 'preload.js'),
+                contextIsolation: true,
+                nodeIntegration: false,
+                backgroundThrottling: false
+            }
+        });
+
+        calendarWindow.loadFile('calendar.html');
+
+        // Fill the screen once the content is ready (keeps OS chrome so it's
+        // still easy to close). ready-to-show fires on every fresh window.
+        calendarWindow.once('ready-to-show', () => {
+            if (!calendarWindow || calendarWindow.isDestroyed()) return;
+            calendarWindow.maximize();
+            calendarWindow.show();
+            calendarWindow.focus();
+        });
+
+        calendarWindow.on('closed', () => {
+            calendarWindow = null;
+        });
+    } catch (e) {
+        console.error('Failed to open calendar window:', e);
+        calendarWindow = null;
+    }
 }
 
 // ===== System-Wide Greyscale via Windows Magnification API =====
@@ -314,8 +383,8 @@ ipcMain.on('timer-task-changed', (event, task) => {
 ipcMain.on('resize-mini-window', (event, contentHeight) => {
     if (!miniWindow || miniWindow.isDestroyed()) return;
 
-    const MIN_H = 70;
-    const MAX_H = 140;
+    const MIN_H = 100;
+    const MAX_H = 180;
     const newHeight = Math.max(MIN_H, Math.min(MAX_H, Math.round(contentHeight)));
 
     const [w] = miniWindow.getSize();
@@ -326,6 +395,12 @@ ipcMain.on('resize-mini-window', (event, contentHeight) => {
     // Keep the bottom edge in place: adjust y by the height delta.
     const newY = y + (currentHeight - newHeight);
     miniWindow.setBounds({ x, y: newY, width: w, height: newHeight });
+});
+
+// Open (or focus) the full calendar as its own separate, full-screen window.
+ipcMain.on('open-calendar-window', () => {
+    console.log('[calendar] open-calendar-window received');
+    createCalendarWindow();
 });
 
 ipcMain.on('show-main-window', () => {
@@ -342,6 +417,45 @@ ipcMain.on('show-main-window', () => {
 ipcMain.on('mini-pause-toggle', () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send('toggle-timer');
+    }
+});
+
+// Close just the mini overlay (the ✕ button on it). The timer keeps running in
+// the main window; the user can reopen the overlay via the ▼ button on the
+// timer page, which re-runs createMiniWindow().
+ipcMain.on('close-mini', () => {
+    if (miniWindow) {
+        miniWindow.close();
+        miniWindow = null;
+    }
+});
+
+// "Refocus" from the mini overlay: the box-breathing overlay lives in the main
+// window (full-screen, minimalistic), so restore/show the main window and ask
+// it to open the overlay. Closing the mini keeps the overlay unobstructed.
+ipcMain.on('open-refocus', () => {
+    if (miniWindow) {
+        miniWindow.close();
+        miniWindow = null;
+    }
+    if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.restore();
+        mainWindow.focus();
+        mainWindow.webContents.send('open-refocus');
+    }
+});
+
+// "Yap Sheet" from the mini overlay: the thoughts-log overlay lives in the main
+// window, so restore/show it and ask it to open the sheet.
+ipcMain.on('open-yap-sheet', () => {
+    if (miniWindow) {
+        miniWindow.close();
+        miniWindow = null;
+    }
+    if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.restore();
+        mainWindow.focus();
+        mainWindow.webContents.send('open-yap-sheet');
     }
 });
 
@@ -394,14 +508,14 @@ ipcMain.handle('get-open-windows', () => {
                 }
                 const ownTitle = (mainWindow && !mainWindow.isDestroyed())
                     ? (mainWindow.getTitle() || '').trim()
-                    : 'FocusFlow';
+                    : 'Intention';
 
                 const titles = stdout
                     .split(/\r?\n/)
                     .map(t => t.trim())
                     .filter(t => t.length > 0)
-                    // Hide FocusFlow's own window from the picker
-                    .filter(t => t !== ownTitle && !t.toLowerCase().includes('focusflow'));
+                    // Hide Intention's own window from the picker
+                    .filter(t => t !== ownTitle && !t.toLowerCase().includes('intention'));
 
                 // De-duplicate while preserving order
                 const seen = new Set();
@@ -468,7 +582,7 @@ ipcMain.handle('get-pairing-qr', async () => {
 });
 
 // ===== Launch at Device Startup =====
-// Register (or unregister) FocusFlow to open automatically when the user logs
+// Register (or unregister) Intention to open automatically when the user logs
 // in. Uses Electron's cross-platform login-item API (Windows registry / macOS
 // login items). `openAsHidden` is a no-op on Windows but keeps the launch quiet
 // on macOS. The OS itself is the source of truth for whether it's enabled.
@@ -501,6 +615,45 @@ ipcMain.handle('get-launch-at-startup', () => isLaunchAtStartupEnabled());
 ipcMain.handle('set-launch-at-startup', (event, enabled) => {
     setLaunchAtStartup(enabled);
     return isLaunchAtStartupEnabled();
+});
+
+// ===== Account session store (optional user accounts) =====
+// The renderer runs the Supabase email-OTP flow, but the resulting session
+// (access + refresh tokens) is persisted HERE, encrypted via safeStorage, so it
+// never touches localStorage. On launch the renderer asks for the stored
+// session to restore login. See js/auth/session-store.js for the (tested) logic.
+let sessionStore = null;
+function getSessionStore() {
+    if (!sessionStore) {
+        sessionStore = createSessionStore({
+            safeStorage,
+            fs,
+            filePath: path.join(app.getPath('userData'), 'account-session.enc')
+        });
+    }
+    return sessionStore;
+}
+
+// Return the stored session (or null). Also reports whether OS encryption is
+// available so the UI can explain if accounts can't be kept signed in.
+ipcMain.handle('auth:getSession', () => {
+    const store = getSessionStore();
+    return {
+        session: store.getSession(),
+        encryptionAvailable: store.encryptionAvailable()
+    };
+});
+
+// Persist a session handed up from the renderer after a successful verify or a
+// silent token refresh. Returns { ok, reason } so the UI can surface failures
+// (e.g. encryption unavailable -> can't stay signed in across restarts).
+ipcMain.handle('auth:setSession', (event, session) => {
+    return getSessionStore().setSession(session);
+});
+
+// Clear the stored session on logout. Idempotent.
+ipcMain.handle('auth:clearSession', () => {
+    return getSessionStore().clearSession();
 });
 
 // ===== App Lifecycle =====
@@ -564,7 +717,7 @@ function initAutoUpdater() {
         if (process.platform === 'darwin') {
             sendToRenderer('update-available-manual', {
                 version: info.version,
-                url: 'https://github.com/sonellmalik/focusflow/releases/latest'
+                url: 'https://github.com/sonellmalik/Intention/releases/latest'
             });
             return;
         }
@@ -610,7 +763,7 @@ ipcMain.on('install-update', () => {
 
 // Renderer asks to open the Releases page (macOS manual-update fallback).
 ipcMain.on('open-release-page', () => {
-    shell.openExternal('https://github.com/sonellmalik/focusflow/releases/latest');
+    shell.openExternal('https://github.com/sonellmalik/Intention/releases/latest');
 });
 
 // Manual "check for updates" trigger from the UI.

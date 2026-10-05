@@ -1,0 +1,90 @@
+name: Deploy website to GitHub Pages
+
+# Publishes the static marketing site + web app to GitHub Pages on every push
+# to main. This is independent of build.yml (which builds the desktop
+# installers) and only touches the static front-end files.
+#
+# Deployed layout (see the "Assemble site" step below):
+#   /            -> the marketing landing page   (from web/)
+#   /app/        -> the functional web app       (root index.html + css/ + js/)
+#   /css, /js    -> shared assets used by both
+# The marketing page's app/sign-in links are rewritten from their local
+# "../index.html" form to the Pages layout so nothing is hand-edited in source
+# (web/index.html keeps working when served locally at /web/).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Allow this workflow to publish Pages; one concurrent deploy at a time.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assemble site
+        run: |
+          set -e
+          mkdir -p _site
+
+          # 1. The web app lives at /app/ : the root index.html IS the app, so
+          #    copy it plus the shared asset folders it loads.
+          mkdir -p _site/app
+          cp index.html _site/app/index.html
+          # calendar.html is a standalone page the app can open in a browser.
+          [ -f calendar.html ] && cp calendar.html _site/app/calendar.html || true
+          cp -r css _site/app/css
+          cp -r js _site/app/js
+          [ -d assets ] && cp -r assets _site/app/assets || true
+
+          # 2. The marketing page lives at the site ROOT. Copy its files there.
+          cp web/index.html _site/index.html
+          cp web/marketing.css _site/marketing.css
+          [ -f web/marketing.js ] && cp web/marketing.js _site/marketing.js || true
+
+          # 3. The marketing page needs the app's design tokens (css/style.css).
+          #    Locally it loads them as ../css/style.css; at the root we provide
+          #    a top-level css/ copy so that path resolves to css/style.css.
+          cp -r css _site/css
+
+          # 4. Rewrite the marketing page's links for the Pages layout:
+          #      ../index.html?signin=1  -> app/?signin=1
+          #      ../index.html           -> app/
+          #      ../css/                 -> css/
+          sed -i \
+            -e 's#\.\./index\.html?signin=1#app/?signin=1#g' \
+            -e 's#\.\./index\.html#app/#g' \
+            -e 's#\.\./css/#css/#g' \
+            _site/index.html
+
+          # 5. SPA-friendly 404 + disable Jekyll (so files/underscores are served as-is).
+          touch _site/.nojekyll
+          cp _site/index.html _site/404.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

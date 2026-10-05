@@ -1,0 +1,419 @@
+/* ===== Full-width Calendar (Teams-style week/day view) ===== */
+
+/* The calendar page uses the full window width, unlike the narrow Scheduler
+   column. It fills the viewport horizontally and vertically. */
+#page-calendar {
+    padding: 0.6rem 0.8rem 0.8rem;
+}
+
+.calendar-page {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: calc(100vh - 90px); /* nav + toolbar headroom */
+    min-height: 480px;
+}
+
+/* ===== Toolbar ===== */
+.cw-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.3rem;
+}
+
+.cw-toolbar-left,
+.cw-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cw-nav {
+    display: flex;
+    gap: 0.2rem;
+}
+
+.cw-range {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+}
+
+/* View toggle (Week / Day) */
+.cw-view-toggle {
+    display: inline-flex;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2px;
+}
+
+.cw-view-btn {
+    background: none;
+    border: none;
+    font-family: var(--font);
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.cw-view-btn.active {
+    background: var(--surface);
+    color: var(--primary);
+    box-shadow: var(--shadow);
+}
+
+.cw-hint {
+    color: var(--text-muted);
+    font-size: 0.74rem;
+    margin-bottom: 0.4rem;
+}
+
+/* ===== Calendar body ===== */
+.cw-calendar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    min-height: 0; /* allow the inner scroller to shrink */
+}
+
+/* Header row and scroll body must span the full calendar width. */
+.cw-header-row,
+.cw-scroll {
+    width: 100%;
+}
+
+/* All-day / day-header row (day names + dates across the top) */
+.cw-header-row {
+    display: grid;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+}
+
+.cw-corner {
+    border-right: 1px solid var(--border);
+}
+
+.cw-day-head {
+    padding: 0.4rem 0.3rem;
+    text-align: center;
+    border-right: 1px solid var(--border);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.cw-day-head:last-child {
+    border-right: none;
+}
+
+.cw-day-head:hover {
+    background: var(--bg);
+}
+
+.cw-day-name {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.cw-day-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    height: 26px;
+    margin-top: 2px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    border-radius: 50%;
+}
+
+.cw-day-head.is-today .cw-day-num {
+    background: var(--primary);
+    color: #fff;
+}
+
+.cw-day-head.is-today .cw-day-name {
+    color: var(--primary);
+}
+
+/* ===== Scrollable time grid ===== */
+.cw-scroll {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.cw-grid {
+    display: grid;
+    position: relative;
+}
+
+/* Time gutter (left column with hour labels) */
+.cw-time-gutter {
+    position: relative;
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+}
+
+.cw-hour-label {
+    position: absolute;
+    right: 6px;
+    font-size: 0.64rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    transform: translateY(-50%);
+    white-space: nowrap;
+}
+
+/* A single day column that holds hour lines + event blocks */
+.cw-daycol {
+    position: relative;
+    border-right: 1px solid var(--border);
+}
+
+.cw-daycol:last-child {
+    border-right: none;
+}
+
+.cw-daycol.is-today {
+    background: rgba(67, 97, 238, 0.03);
+}
+
+/* Hour separator lines inside a day column */
+.cw-hourline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 1px solid var(--border);
+    pointer-events: none;
+}
+
+.cw-halfline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 1px dashed rgba(0, 0, 0, 0.04);
+    pointer-events: none;
+}
+
+/* Drag-selection highlight */
+.cw-select-highlight {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    background: rgba(67, 97, 238, 0.18);
+    border: 1px solid rgba(67, 97, 238, 0.4);
+    border-radius: 5px;
+    pointer-events: none;
+    z-index: 4;
+}
+
+/* ===== Event blocks ===== */
+.cw-event {
+    position: absolute;
+    border-radius: 5px;
+    background: rgba(67, 97, 238, 0.92);
+    color: #fff;
+    padding: 2px 6px;
+    overflow: hidden;
+    cursor: pointer;
+    z-index: 5;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    border-left: 3px solid rgba(255, 255, 255, 0.5);
+}
+
+.cw-event.break-event {
+    background: rgba(76, 201, 240, 0.94);
+    color: #08303f;
+}
+
+.cw-event.plain-event {
+    background: rgba(114, 9, 183, 0.9);
+}
+
+/* ===== Scheduler-style resize handles ===== */
+.cw-event-resize {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 7px;
+    z-index: 7;
+    cursor: ns-resize;
+}
+
+.cw-event-resize-top { top: -1px; }
+.cw-event-resize-bottom { bottom: -1px; }
+
+/* Subtle grab affordance: a small bar appears on hover / while resizing. */
+.cw-event-resize::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.85);
+    opacity: 0;
+    transition: opacity 0.12s ease;
+}
+
+.cw-event-resize-top::after { top: 1px; }
+.cw-event-resize-bottom::after { bottom: 1px; }
+
+.cw-event:hover .cw-event-resize::after,
+.cw-event.resizing .cw-event-resize::after {
+    opacity: 0.9;
+}
+
+/* While actively resizing, force the resize cursor and lift the block. */
+.cw-event.resizing {
+    z-index: 10;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28);
+    outline: 2px solid #fff;
+    outline-offset: -2px;
+}
+
+body.cw-resizing,
+body.cw-resizing * {
+    cursor: ns-resize !important;
+    user-select: none;
+}
+
+.cw-event-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.15;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cw-event-time {
+    font-size: 0.6rem;
+    opacity: 0.9;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Current-time indicator line */
+.cw-now-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 0;
+    border-top: 2px solid #e63946;
+    z-index: 6;
+    pointer-events: none;
+}
+
+.cw-now-line::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: -4px;
+    width: 7px;
+    height: 7px;
+    background: #e63946;
+    border-radius: 50%;
+}
+
+/* ===== Event editor modal ===== */
+.cw-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 600;
+    padding: 1rem;
+    animation: fadeIn 0.2s ease;
+}
+
+.cw-modal-content {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 1.2rem;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: var(--shadow-lg);
+}
+
+.cw-modal-content h3 {
+    margin-bottom: 0.9rem;
+    font-size: 1rem;
+}
+
+.cw-field {
+    margin-bottom: 0.7rem;
+}
+
+.cw-field label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.cw-field input,
+.cw-field select {
+    width: 100%;
+}
+
+.cw-field-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.cw-field-row .cw-field {
+    flex: 1;
+}
+
+.cw-modal-actions {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 1rem;
+}
+
+.cw-modal-actions .btn {
+    flex: 1;
+}
+
+.cw-modal-actions .cw-delete {
+    flex: 0 0 auto;
+    color: var(--accent);
+    border-color: var(--border);
+}
+
+.cw-modal-actions .cw-delete:hover {
+    background: rgba(247, 37, 133, 0.08);
+    border-color: var(--accent);
+}
+
+/* Day-view single-column tweaks: give the lone column room to breathe */
+.cw-calendar.view-day .cw-daycol {
+    background: none;
+}

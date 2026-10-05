@@ -15,7 +15,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // Mini overlay asks main to resize its window to fit its content height.
     resizeMiniWindow: (height) => ipcRenderer.send('resize-mini-window', height),
     showMainWindow: () => ipcRenderer.send('show-main-window'),
+    // Open the full calendar as its own separate, full-screen window.
+    openCalendarWindow: () => ipcRenderer.send('open-calendar-window'),
     miniPauseToggle: () => ipcRenderer.send('mini-pause-toggle'),
+    // Close just the mini overlay; the timer keeps running in the main window.
+    closeMini: () => ipcRenderer.send('close-mini'),
+    // "Refocus": mini overlay asks main to open the box-breathing overlay.
+    openRefocus: () => ipcRenderer.send('open-refocus'),
+    onOpenRefocus: (callback) => ipcRenderer.on('open-refocus', () => callback()),
+    // "Yap Sheet": mini overlay asks main to open the thoughts log.
+    openYapSheet: () => ipcRenderer.send('open-yap-sheet'),
+    onOpenYapSheet: (callback) => ipcRenderer.on('open-yap-sheet', () => callback()),
     onUpdateTime: (callback) => ipcRenderer.on('update-time', (event, time) => callback(time)),
     onUpdateMode: (callback) => ipcRenderer.on('update-mode', (event, mode) => callback(mode)),
     onUpdateTask: (callback) => ipcRenderer.on('update-task', (event, task) => callback(task)),
@@ -40,6 +50,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // Launch at device startup
     getLaunchAtStartup: () => ipcRenderer.invoke('get-launch-at-startup'),
     setLaunchAtStartup: (enabled) => ipcRenderer.invoke('set-launch-at-startup', enabled),
+
+    // Account session persistence (optional user accounts). Tokens are stored
+    // encrypted in the main process via safeStorage, never in localStorage.
+    authGetSession: () => ipcRenderer.invoke('auth:getSession'),
+    authSetSession: (session) => ipcRenderer.invoke('auth:setSession', session),
+    authClearSession: () => ipcRenderer.invoke('auth:clearSession'),
 
     // Auto-update
     checkForUpdates: () => ipcRenderer.send('check-for-updates'),

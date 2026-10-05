@@ -16,7 +16,7 @@ const platform = process.argv[2] || (process.platform === 'darwin' ? 'mac' : 'wi
 
 const sharedConfig = {
     appId: 'com.focusflow.app',
-    productName: 'FocusFlow',
+    productName: 'Intention',
     directories: { output: 'dist' },
     files: [
         'main.js',
@@ -40,7 +40,7 @@ const sharedConfig = {
         category: 'public.app-category.productivity'
     },
     dmg: {
-        title: 'FocusFlow',
+        title: 'Intention',
         contents: [
             { x: 130, y: 220 },
             { x: 410, y: 220, type: 'link', path: '/Applications' }
@@ -51,7 +51,7 @@ const sharedConfig = {
         allowToChangeInstallationDirectory: true,
         createDesktopShortcut: true,
         createStartMenuShortcut: true,
-        shortcutName: 'FocusFlow'
+        shortcutName: 'Intention'
     },
     forceCodeSigning: false,
     // Auto-update feed. electron-builder uses this to generate the update
@@ -61,7 +61,7 @@ const sharedConfig = {
     publish: {
         provider: 'github',
         owner: 'sonellmalik',
-        repo: 'focusflow'
+        repo: 'Intention'
     }
 };
 

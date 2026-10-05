@@ -1,0 +1,171 @@
+/* ===== Account / auth UI ===== */
+
+/* Account button in the nav. In the wide layout it sits to the right; in the
+   narrow (quarter-width) window the nav wraps, so it drops to its own row
+   instead of overflowing off-screen. */
+.nav-account {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    max-width: 100%;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.nav-account:hover {
+    color: var(--text);
+    border-color: var(--primary);
+}
+
+.nav-account.is-signed-in {
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.nav-account-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* The auth modal reuses the .cw-modal backdrop/content from calendar.css; these
+   just tune spacing and the auth-specific bits. */
+.auth-modal .auth-content {
+    max-width: 360px;
+}
+
+.auth-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.8rem;
+    line-height: 1.4;
+}
+
+.auth-hint code {
+    font-size: 0.74rem;
+    background: var(--bg);
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+}
+
+.auth-error {
+    font-size: 0.78rem;
+    color: var(--accent);
+    background: rgba(247, 37, 133, 0.08);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 0.4rem 0.55rem;
+    margin: 0 0 0.7rem;
+}
+
+.auth-actions-code {
+    flex-wrap: wrap;
+}
+
+/* ===== Online (gated) page ===== */
+.online-layout {
+    position: relative;
+    max-width: 620px;
+    margin: 1.5rem auto;
+    padding: 1.2rem 1.4rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.online-hint {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.9rem;
+}
+
+.online-feature-list {
+    margin: 0;
+    padding-left: 1.1rem;
+    font-size: 0.88rem;
+    color: var(--text);
+    line-height: 1.7;
+}
+
+/* ===== Online "coming soon" state ===== */
+/* Replaces the old feature list with a friendly, centered teaser. Reuses the
+   same design tokens as the rest of the app. */
+.online-soon {
+    text-align: center;
+    padding: 2.2rem 1.6rem;
+}
+
+.online-soon h2 {
+    margin: 0.2rem 0 0.6rem;
+}
+
+.online-soon .online-hint {
+    max-width: 32ch;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.online-soon-emoji {
+    font-size: 2.6rem;
+    line-height: 1;
+    margin-bottom: 0.3rem;
+}
+
+.online-soon-badge {
+    display: inline-block;
+    margin: 0.4rem auto 0;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
+    border-radius: 999px;
+}
+
+/* ===== Gate lock overlay (applied to [data-requires-auth] when logged out) ===== */
+.auth-gated {
+    position: relative;
+}
+
+/* The locked content is dimmed + non-interactive behind the overlay. */
+.auth-gated > :not(.auth-lock-overlay) {
+    filter: blur(2px);
+    opacity: 0.5;
+    pointer-events: none;
+    user-select: none;
+}
+
+.auth-lock-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.55);
+    border-radius: var(--radius);
+    z-index: 5;
+}
+
+.auth-lock-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+}
+
+.auth-lock-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+}

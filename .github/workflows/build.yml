@@ -42,7 +42,7 @@ jobs:
         if: matrix.platform == 'win'
         uses: actions/upload-artifact@v4
         with:
-          name: FocusFlow-Windows-Installer
+          name: Intention-Windows-Installer
           # Include the auto-update metadata (latest.yml) and blockmap so
           # electron-updater can detect and download new versions.
           path: |
@@ -55,7 +55,7 @@ jobs:
         if: matrix.platform == 'mac'
         uses: actions/upload-artifact@v4
         with:
-          name: FocusFlow-macOS-DMG
+          name: Intention-macOS-DMG
           path: |
             dist/*.dmg
             dist/*.dmg.blockmap
@@ -81,9 +81,9 @@ jobs:
           draft: false
           make_latest: true
           files: |
-            artifacts/FocusFlow-Windows-Installer/*.exe
-            artifacts/FocusFlow-Windows-Installer/*.exe.blockmap
-            artifacts/FocusFlow-Windows-Installer/latest.yml
-            artifacts/FocusFlow-macOS-DMG/*.dmg
-            artifacts/FocusFlow-macOS-DMG/*.dmg.blockmap
-            artifacts/FocusFlow-macOS-DMG/latest-mac.yml
+            artifacts/Intention-Windows-Installer/*.exe
+            artifacts/Intention-Windows-Installer/*.exe.blockmap
+            artifacts/Intention-Windows-Installer/latest.yml
+            artifacts/Intention-macOS-DMG/*.dmg
+            artifacts/Intention-macOS-DMG/*.dmg.blockmap
+            artifacts/Intention-macOS-DMG/latest-mac.yml

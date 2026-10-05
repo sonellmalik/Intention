@@ -1,0 +1,449 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1. Scaffold the iOS companion project and core data models": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856234415
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856260749
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787857929267
+      }
+    ],
+    "2.1 Define the `PickupDetector` protocol": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856234560
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787857933636
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787858841778
+      }
+    ],
+    "2.2 Implement `LifecyclePickupDetector` (Option B)": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856234675
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787858951391
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787861311363
+      }
+    ],
+    "3.1 Implement `LocalStore` persistence (SwiftData or UserDefaults + Codable)": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856234814
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787857935013
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787858843190
+      }
+    ],
+    "4.1 Implement `SessionTracker` with pickup → distraction conversion": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856234887
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787861854143
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787864418244
+      }
+    ],
+    "5. Checkpoint - detection, store, and tracking": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856234956
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787864424823
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787864431693
+      }
+    ],
+    "6.1 Define `PairingPayload` and QR decoding": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856235053
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787857936422
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787858844139
+      }
+    ],
+    "6.2 Implement `PairFromQR` handshake with Keychain storage": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856235151
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787858952341
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787861307713
+      }
+    ],
+    "7.1 Define `SyncClient` protocol and wire messages": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856235223
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787857937362
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787858845531
+      }
+    ],
+    "7.2 Implement Bonjour discovery and WebSocket connection": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856235305
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787858953739
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787861309090
+      }
+    ],
+    "7.3 Implement persisted offline queue with ack-gated removal": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856235377
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787861857019
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787864419120
+      }
+    ],
+    "8.1 Add dependencies and a Node test runner": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856235457
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856251629
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787857929115
+      }
+    ],
+    "8.2 Implement `DesktopSyncServer` in main.js": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856235547
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787857938483
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787858846518
+      }
+    ],
+    "8.3 Emit session lifecycle to the paired phone": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856235606
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787858954688
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787861312790
+      }
+    ],
+    "9.1 Expose bridge methods in preload.js": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856235668
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787858847605
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787858947375
+      }
+    ],
+    "9.2 Implement pairing QR generation in main.js": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856235743
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787858956561
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787861310465
+      }
+    ],
+    "10.1 Implement `mergePhoneDistractions` in timer.js / history.js": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856235835
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787861313783
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787861832939
+      }
+    ],
+    "11. Checkpoint - end-to-end LAN sync path": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856235893
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787864436359
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787864440505
+      }
+    ],
+    "12.1 Implement the pairing view": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856235965
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787864445378
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787864928991
+      }
+    ],
+    "12.2 Implement the live session and local history views": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856236056
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787864446804
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787864927149
+      }
+    ],
+    "12.3 Wire detector, tracker, store, and sync client together": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856236140
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787864933747
+      }
+    ],
+    "13.1 Implement the settings view and privacy defaults": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856236205
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787864448733
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787864927951
+      }
+    ],
+    "13.2 Implement opt-in cloud relay with end-to-end encryption": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856236318
+      },
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787864934588
+      }
+    ],
+    "14. Final checkpoint - ensure all tests pass": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787856236403
+      }
+    ],
+    "3. Implement the on-device Local Store": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787858843229
+      }
+    ],
+    "6. Implement pairing over QR code": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787861307868
+      }
+    ],
+    "9. Add the preload.js sync bridge and pairing QR generation": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787861310585
+      }
+    ],
+    "2. Implement pickup detection behind a substitutable protocol": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787861311454
+      }
+    ],
+    "8. Set up the Electron test harness and Bonjour + WebSocket server in main.js": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787861312923
+      }
+    ],
+    "10. Implement renderer merge of phone distractions": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787861833093
+      }
+    ],
+    "4. Implement the Session Tracker": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787864418426
+      }
+    ],
+    "7. Implement the Sync Client (transport, offline queue, reconnect)": [
+      {
+        "executionId": "3b09a030-d7a6-4898-892f-0caff1f976a6",
+        "chatSessionId": "sess_d20d96ae-b9db-4827-8230-a179320689bc",
+        "timestamp": 1787864419202
+      }
+    ]
+  }
+}
