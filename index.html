@@ -3,23 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FocusFlow - Productivity Tracker</title>
+    <title>Intention - Productivity Tracker</title>
+    <!-- Web-mode detection. In a plain browser window.electronAPI is undefined
+         (preload.js only exposes it inside Electron), so we tag <html> with
+         'web-mode' here - inline and BEFORE the stylesheets - so the browser-only
+         rules in css/web.css apply on first paint (no flash of the narrow
+         Electron layout). Electron keeps its default narrow-column look. -->
+    <script>
+        if (!window.electronAPI) {
+            document.documentElement.classList.add('web-mode');
+        }
+    </script>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/timer.css">
     <link rel="stylesheet" href="css/timeblock.css">
+    <link rel="stylesheet" href="css/calendar.css">
     <link rel="stylesheet" href="css/articles.css">
     <link rel="stylesheet" href="css/history.css">
+    <link rel="stylesheet" href="css/breathing.css">
+    <link rel="stylesheet" href="css/yapsheet.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <!-- Browser-only responsive + full-width rules. Linked LAST so its
+         html.web-mode rules win by source order (no !important needed). This
+         file never affects the Electron app, where 'web-mode' is absent. -->
+    <link rel="stylesheet" href="css/web.css">
 </head>
 <body>
     <!-- Navigation -->
     <nav class="nav" id="main-nav">
-        <div class="nav-brand">FocusFlow</div>
+        <div class="nav-brand">Intention</div>
         <div class="nav-links">
             <a href="#" class="nav-link" data-page="timer">Timer</a>
             <a href="#" class="nav-link active" data-page="timeblock">Scheduler</a>
+            <a href="#" class="nav-link" data-page="calendar">Calendar</a>
             <a href="#" class="nav-link" data-page="history">History</a>
             <a href="#" class="nav-link" data-page="articles">Read</a>
+            <a href="#" class="nav-link" data-page="online">Online</a>
         </div>
+        <!-- Account button opens the sign-in modal (or shows the signed-in
+             account). Lives on the right of the nav, separate from page tabs. -->
+        <button type="button" class="nav-account" id="nav-account" title="Account">
+            <span class="nav-account-label" id="nav-account-label">Sign in</span>
+        </button>
     </nav>
 
     <!-- Timer Page -->
@@ -31,27 +56,10 @@
                         <button class="mode-tab active" data-mode="work">Work</button>
                         <button class="mode-tab" data-mode="shortBreak">Break</button>
                         <button class="mode-tab" data-mode="longBreak">Long</button>
+                        <button class="mode-tab mode-tab-settings" id="btn-toggle-settings" title="Timer settings" aria-label="Timer settings">&#9881;</button>
                     </div>
-                    <div class="timer-display">
-                        <span id="timer-minutes">25</span>:<span id="timer-seconds">00</span>
-                    </div>
-                    <div class="timer-controls">
-                        <button class="btn btn-primary" id="btn-start">Start</button>
-                        <button class="btn btn-secondary" id="btn-pause" disabled>Pause</button>
-                        <button class="btn btn-ghost" id="btn-reset">Reset</button>
-                        <button class="btn btn-ghost btn-small" id="btn-minimize" style="display:none;" title="Minimize to overlay">&#x25BC;</button>
-                    </div>
-                    <div class="session-count">
-                        Session: <span id="session-number">1</span> / 8
-                    </div>
-                </div>
 
-                <!-- Focus Mode Controls -->
-                <div class="focus-section">
-                    <div class="focus-header">
-                        <h3>Timer Settings</h3>
-                        <button class="btn btn-ghost btn-small" id="btn-toggle-settings">&#9881;</button>
-                    </div>
+                    <!-- Timer settings drop down right under the mode tabs. -->
                     <div class="timer-settings" id="timer-settings" style="display:none;">
                         <div class="settings-row">
                             <label>Work</label>
@@ -74,6 +82,37 @@
                         </div>
                         <button class="btn btn-primary btn-small" id="btn-save-settings">Apply</button>
                     </div>
+
+                    <div class="timer-display">
+                        <span id="timer-minutes">25</span>:<span id="timer-seconds">00</span>
+                    </div>
+                    <div class="timer-controls">
+                        <button class="btn btn-primary" id="btn-start">Start</button>
+                        <button class="btn btn-secondary" id="btn-pause" disabled>Pause</button>
+                        <button class="btn btn-ghost" id="btn-reset">Reset</button>
+                        <button class="btn btn-ghost btn-small" id="btn-minimize" style="display:none;" title="Minimize to overlay">&#x25BC;</button>
+                    </div>
+                    <button class="btn btn-secondary btn-refocus" id="btn-refocus" title="Take a box-breathing break to refocus">&#127788; Refocus</button>
+                    <div class="session-count">
+                        Session: <span id="session-number">1</span> / 8
+                    </div>
+                </div>
+
+                <!-- Background Sounds (generated brainwave tones) -->
+                <div class="focus-section">
+                    <div class="focus-header">
+                        <h3>Background Sounds</h3>
+                        <span class="bg-audio-status" id="bg-audio-status">Off</span>
+                    </div>
+                    <p class="focus-desc">Looping brainwave tones to help you settle in. Best with headphones.</p>
+                    <div class="bg-sound-buttons">
+                        <button class="btn btn-secondary btn-small bg-sound-btn" data-sound="theta" title="Relaxed focus / flow (~6 Hz)">Theta waves</button>
+                        <button class="btn btn-secondary btn-small bg-sound-btn" data-sound="delta" title="Deep rest / calm (~2 Hz)">Delta waves</button>
+                    </div>
+                    <div class="bg-audio-volume-row" id="bg-audio-volume-row" style="display:none;">
+                        <span class="bg-audio-vol-icon">&#128266;</span>
+                        <input type="range" id="bg-audio-volume" min="0" max="100" value="40">
+                    </div>
                 </div>
 
                 <!-- Focus Mode Controls -->
@@ -86,6 +125,7 @@
                         </label>
                     </div>
                     <p class="focus-desc">Turns your entire PC greyscale. Color returns only when a window you pick is active.</p>
+                    <button class="btn btn-secondary btn-small btn-yapsheet" id="btn-yapsheet" title="Open your running thoughts log">&#128221; Yap Sheet</button>
                     <div class="focus-window-selector" id="focus-window-selector" style="display:none;">
                         <!-- System windows (Electron only) -->
                         <div class="system-windows-section" id="system-windows-section" style="display:none;">
@@ -175,7 +215,14 @@
                     </select>
                     <button class="btn btn-primary btn-small" id="btn-add-todo">Add</button>
                 </div>
-                <button class="btn btn-ghost btn-small btn-add-break" id="btn-add-break">+ Scheduled Break</button>
+                <!-- Break: collapsible menu of break types -->
+                <div class="break-menu" id="break-menu">
+                    <button class="btn btn-ghost btn-small btn-add-break" id="btn-add-break" aria-expanded="false" aria-controls="break-options">
+                        <span>&#9749; Break</span>
+                        <span class="break-menu-arrow">&#9662;</span>
+                    </button>
+                    <ul class="break-options" id="break-options" style="display:none;"></ul>
+                </div>
                 <ul class="todo-list" id="todo-list"></ul>
 
                 <!-- Completed tasks archive (collapsible) -->
@@ -187,6 +234,31 @@
                     <ul class="completed-list" id="completed-list" style="display:none;"></ul>
                 </div>
             </div>
+        </div>
+    </main>
+
+    <!-- Calendar Page (full-width Teams-style week/day calendar) -->
+    <main class="page" id="page-calendar">
+        <div class="calendar-page">
+            <header class="cw-toolbar">
+                <div class="cw-toolbar-left">
+                    <button class="btn btn-ghost btn-small" id="cw-today">Today</button>
+                    <div class="cw-nav">
+                        <button class="btn btn-ghost btn-small" id="cw-prev" title="Previous">&larr;</button>
+                        <button class="btn btn-ghost btn-small" id="cw-next" title="Next">&rarr;</button>
+                    </div>
+                    <span class="cw-range" id="cw-range"></span>
+                </div>
+                <div class="cw-toolbar-right">
+                    <div class="cw-view-toggle" id="cw-view-toggle">
+                        <button class="cw-view-btn active" data-view="week">Week</button>
+                        <button class="cw-view-btn" data-view="day">Day</button>
+                    </div>
+                    <button class="btn btn-primary btn-small" id="cw-add-event" title="Add an event">+ Event</button>
+                </div>
+            </header>
+            <p class="cw-hint">Click and drag on any day to create an event. Click an event to edit it.</p>
+            <div class="cw-calendar" id="cw-calendar"></div>
         </div>
     </main>
 
@@ -246,6 +318,26 @@
                 <article class="article-content" id="article-content"></article>
                 <p class="highlight-hint">Select text to highlight it.</p>
             </div>
+        </div>
+    </main>
+
+    <!-- Online Page (gated: requires an account). The content inside is
+         revealed only when signed in; logged-out users see a lock overlay
+         (added by js/auth/gate.js). This is a placeholder for the online
+         features that build on accounts in later rounds. -->
+    <main class="page" id="page-online">
+        <div class="online-layout" data-requires-auth>
+            <h2>Online</h2>
+            <p class="online-hint">
+                Calendar import, live status, group Pomodoros and the chat room
+                live here. Sign in to use them.
+            </p>
+            <ul class="online-feature-list">
+                <li>Import your Google, Microsoft/Teams and Apple calendars</li>
+                <li>Show your live focus status to others</li>
+                <li>Run group Pomodoro sessions with people online</li>
+                <li>Join the chat room</li>
+            </ul>
         </div>
     </main>
 
@@ -348,12 +440,30 @@
         </div>
     </div>
 
+    <!-- Auth (optional user accounts). Vendored Supabase SDK + config + client
+         + state machine load before app.js so window.AuthState / SupabaseClient
+         are available to the login UI and gating. -->
+    <script src="js/vendor/supabase.js"></script>
+    <script src="js/auth/supabase-config.js"></script>
+    <script src="js/auth/supabase-client.js"></script>
+    <script src="js/auth/auth-state.js"></script>
     <script src="js/app.js"></script>
     <script src="js/history.js"></script>
     <script src="js/timer.js"></script>
     <script src="js/merge-phone-distractions.js"></script>
+    <script src="js/task-suggest.js"></script>
     <script src="js/timeblock.js"></script>
+    <script src="js/calendar.js"></script>
     <script src="js/articles.js"></script>
+    <script src="js/breathing.js"></script>
+    <script src="js/yapsheet.js"></script>
+    <script src="js/background-audio.js"></script>
+    <!-- Auth UI (login modal + nav account button). Depends on AuthState +
+         SupabaseClient loaded earlier and on the nav DOM existing. -->
+    <script src="js/auth/auth-ui.js"></script>
+    <!-- Gate: locks [data-requires-auth] elements when signed out. Loads after
+         auth-ui.js so window.intentionAuth + window.openAuthModal exist. -->
+    <script src="js/auth/gate.js"></script>
     <script>
         // Wire phone-distraction merge to the renderer (iOS Focus Companion).
         // Subscribes to window.electronAPI.onPhoneDistractions when running in
@@ -362,6 +472,37 @@
         if (window.mergePhoneDistractionsModule) {
             window.mergePhoneDistractionsModule.installMergePhoneDistractions(window);
         }
+
+        // Install the online-feature gate: locks [data-requires-auth] sections
+        // when signed out and unlocks them when signed in. Subscribes to the
+        // shared authState created by auth-ui.js.
+        if (window.AuthGate && window.intentionAuth) {
+            window.AuthGate.installGate({ authState: window.intentionAuth });
+        }
+
+        // "Refocus" button under the timer opens the box-breathing overlay.
+        (function wireRefocusButton() {
+            const btn = document.getElementById('btn-refocus');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    if (typeof window.startRefocusBreathing === 'function') {
+                        window.startRefocusBreathing();
+                    }
+                });
+            }
+        })();
+
+        // "Yap Sheet" button in the Focus Mode section opens the thoughts log.
+        (function wireYapSheetButton() {
+            const btn = document.getElementById('btn-yapsheet');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    if (typeof window.openYapSheet === 'function') {
+                        window.openYapSheet();
+                    }
+                });
+            }
+        })();
 
         // ===== Plan-the-Day startup popup =====
         // Shown once each time the app launches. Fully dismissible via the X,

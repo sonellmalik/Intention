@@ -1,0 +1,190 @@
+/* ===== Browser-only layout (web.css) =====
+ *
+ * These rules apply ONLY in a plain browser, where index.html's inline
+ * detection script adds the class 'web-mode' to <html> (window.electronAPI is
+ * undefined outside Electron). Every selector here is scoped under
+ * html.web-mode, and this file is linked LAST in index.html, so it wins by
+ * source order without any !important and NEVER affects the Electron app.
+ *
+ * Purpose: the desktop app is pinned to a quarter-width column (main.js sets
+ * winWidth = screen/4), so the renderer assumes a single narrow column with no
+ * @media queries. On the web we drop that constraint - the content becomes a
+ * centered wide band on laptops, lays Timer/Scheduler out in multiple columns
+ * when there's room, and collapses to a usable single column on phones.
+ *
+ * All colors/fonts/spacing reuse the design tokens from css/style.css
+ * (:root { --bg, --surface, --text, --primary, --border, --radius, --font, ... }).
+ * Breakpoints: mobile <=600px, tablet 601-1024px, desktop >=1025px.
+ */
+
+/* ===== Full-width band (drop the quarter-screen constraint) ===== */
+
+/* The nav is a direct child of <body>; align its contents to the same centered
+   max-width band as the pages so everything lines up on wide screens. */
+html.web-mode .nav {
+    padding-left: max(0.8rem, calc((100vw - 1200px) / 2));
+    padding-right: max(0.8rem, calc((100vw - 1200px) / 2));
+}
+
+/* Center each page in a comfortable wide column instead of the narrow Electron
+   width. The Calendar page is intentionally excluded below so it stays full
+   width (css/calendar.css already sets width:100% + full-height layout). */
+html.web-mode .page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.2rem 1.4rem;
+    width: 100%;
+}
+
+/* Keep the Calendar page full-width - do not shrink it into the 1200px band. */
+html.web-mode #page-calendar {
+    max-width: none;
+    padding: 0.6rem 1.4rem 1rem;
+}
+
+/* ===== Desktop (>=1025px): use the extra width with multi-column layouts ===== */
+@media (min-width: 1025px) {
+    /* Timer: timer card + sidebar sit beside the focus/distraction stacks. */
+    html.web-mode .timer-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+        align-items: start;
+        gap: 1.2rem;
+    }
+
+    /* The timer card column (card + background sounds + focus + distractions). */
+    html.web-mode .timer-main {
+        min-width: 0;
+    }
+
+    /* The inspiration quotes sit in the second column at the top. */
+    html.web-mode .quotes-sidebar {
+        align-self: start;
+    }
+
+    /* Scheduler: priorities + to-do flank the time-block grid in the middle so
+       the wide space reads as a planner rather than one tall column. */
+    html.web-mode .timeblock-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1fr);
+        align-items: start;
+        gap: 1.2rem;
+    }
+
+    html.web-mode .timeblock-layout > * {
+        min-width: 0;
+    }
+
+    /* Let the time-block calendar use the taller desktop viewport. */
+    html.web-mode .timeblock-calendar {
+        max-height: 68vh;
+    }
+}
+
+/* ===== Tablet (601-1024px): two-column Scheduler, single-column Timer ===== */
+@media (min-width: 601px) and (max-width: 1024px) {
+    html.web-mode .timeblock-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        align-items: start;
+        gap: 1rem;
+    }
+
+    /* The time-block grid spans both columns under the two input panels. */
+    html.web-mode .timeblock-section {
+        grid-column: 1 / -1;
+    }
+
+    html.web-mode .timeblock-layout > * {
+        min-width: 0;
+    }
+}
+
+/* ===== Mobile (<=600px): single column, no horizontal overflow ===== */
+@media (max-width: 600px) {
+    /* Tighter page gutters so content isn't cramped on a ~375px phone. */
+    html.web-mode .page {
+        padding: 0.8rem;
+    }
+
+    html.web-mode #page-calendar {
+        padding: 0.5rem 0.6rem 0.7rem;
+    }
+
+    /* Nav: stack the brand/links/account and let the links wrap and stay
+       tappable instead of overflowing off a narrow screen. */
+    html.web-mode .nav {
+        padding-left: 0.8rem;
+        padding-right: 0.8rem;
+    }
+
+    html.web-mode .nav-links {
+        width: 100%;
+        order: 3;
+    }
+
+    html.web-mode .nav-link {
+        padding: 0.4rem 0.55rem;
+    }
+
+    html.web-mode .nav-account {
+        margin-left: auto;
+    }
+
+    /* Timer controls wrap rather than overflow when space is tight. */
+    html.web-mode .timer-controls {
+        flex-wrap: wrap;
+    }
+
+    /* Scheduler input groups stack full-width so inputs stay usable. */
+    html.web-mode .todo-input-group,
+    html.web-mode .priorities-input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    html.web-mode .todo-input-group .btn,
+    html.web-mode .priorities-input-group .btn,
+    html.web-mode .todo-input-group select {
+        width: 100%;
+    }
+
+    /* The time-block grid and Calendar can be wider than a phone; allow a
+       horizontal scroll so the hour columns stay readable rather than crushed. */
+    html.web-mode .cw-scroll,
+    html.web-mode .cw-header-row {
+        overflow-x: auto;
+    }
+
+    /* History heatmap: let the 7-column grid scale down comfortably. */
+    html.web-mode .calendar-cells,
+    html.web-mode .calendar-day-labels {
+        gap: 2px;
+    }
+
+    /* Modals must fit a 375px viewport. The shared .cw-modal backdrop (used by
+       the calendar editor AND the auth modal) and the timer modals get a
+       smaller max-width and lighter padding so nothing overflows the screen. */
+    html.web-mode .cw-modal,
+    html.web-mode .reflection-modal,
+    html.web-mode .timeline-modal,
+    html.web-mode .assign-modal,
+    html.web-mode .plan-day-modal {
+        padding: 0.6rem;
+    }
+
+    html.web-mode .cw-modal-content,
+    html.web-mode .auth-content,
+    html.web-mode .reflection-content,
+    html.web-mode .timeline-content,
+    html.web-mode .assign-modal-content,
+    html.web-mode .plan-day-content {
+        max-width: 100%;
+        padding: 1rem;
+    }
+
+    /* Auth modal shares .cw-modal; keep its content within the viewport too. */
+    html.web-mode .auth-modal .auth-content {
+        max-width: 100%;
+    }
+}
