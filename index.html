@@ -480,6 +480,21 @@
             window.AuthGate.installGate({ authState: window.intentionAuth });
         }
 
+        // ===== Sign-in deep-link (browser only) =====
+        // The marketing site's "Sign in" CTA lands here as /index.html?signin=1
+        // (or #signin). When that flag is present, auto-open the auth modal that
+        // auth-ui.js exposed as window.openAuthModal. Guarded with
+        // !window.electronAPI so the Electron app is never affected, and only
+        // runs when the flag is set so a plain /index.html visit does NOT open it.
+        (function initSigninDeepLink() {
+            if (window.electronAPI) return;
+            const params = new URLSearchParams(window.location.search);
+            const wantsSignin = params.get('signin') === '1' || window.location.hash === '#signin';
+            if (wantsSignin && typeof window.openAuthModal === 'function') {
+                window.openAuthModal();
+            }
+        })();
+
         // "Refocus" button under the timer opens the box-breathing overlay.
         (function wireRefocusButton() {
             const btn = document.getElementById('btn-refocus');

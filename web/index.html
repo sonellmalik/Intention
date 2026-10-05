@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intention - A calm, all-in-one productivity companion</title>
+    <meta name="description" content="Intention keeps your focus sessions, daily schedule, and progress in one tidy space. Pomodoro timer, scheduler, focus mode, distraction tracking, and history.">
+    <!-- Reuse the app's design tokens (:root custom properties in css/style.css)
+         so the marketing site matches the Intention visual identity exactly. -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="marketing.css">
+</head>
+<body class="mk">
+    <!-- ===== Header / Nav ===== -->
+    <header class="mk-header">
+        <div class="mk-container mk-nav">
+            <a class="mk-brand" href="#top">Intention</a>
+            <button class="mk-nav-toggle" id="mk-nav-toggle" aria-expanded="false" aria-controls="mk-nav-links" aria-label="Toggle navigation menu">
+                <span class="mk-nav-toggle-bar"></span>
+                <span class="mk-nav-toggle-bar"></span>
+                <span class="mk-nav-toggle-bar"></span>
+            </button>
+            <nav class="mk-nav-links" id="mk-nav-links" aria-label="Primary">
+                <a class="mk-nav-link" href="#features">Features</a>
+                <a class="mk-nav-link" href="#how">How it works</a>
+                <a class="mk-nav-link" href="#desktop">Desktop</a>
+                <a class="btn btn-ghost mk-nav-signin" href="../index.html?signin=1">Sign in</a>
+                <a class="btn btn-primary mk-nav-cta" href="../index.html">Launch the web app</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="top">
+        <!-- ===== Hero ===== -->
+        <section class="mk-hero" aria-labelledby="mk-hero-title">
+            <div class="mk-container mk-hero-inner">
+                <div class="mk-hero-copy">
+                    <h1 id="mk-hero-title">Intention</h1>
+                    <p class="mk-tagline">A calm, all-in-one productivity companion that keeps your focus sessions, daily schedule, and progress in one tidy space.</p>
+                    <div class="mk-cta-row">
+                        <a class="btn btn-primary mk-cta" href="../index.html">Launch the web app</a>
+                        <a class="btn btn-ghost mk-cta" href="https://github.com/sonellmalik/Intention/releases/latest">Download for desktop</a>
+                    </div>
+                    <p class="mk-signin-line">
+                        Have an account? <a href="../index.html?signin=1">Sign in</a>
+                    </p>
+                    <p class="mk-note-inline">All core features work with no account &mdash; your focus data stays on your device.</p>
+                </div>
+
+                <!-- CSS/SVG-drawn app preview mockup (no image files). -->
+                <div class="mk-hero-mockup" aria-hidden="true">
+                    <div class="mk-window">
+                        <div class="mk-window-bar">
+                            <span class="mk-dot"></span><span class="mk-dot"></span><span class="mk-dot"></span>
+                        </div>
+                        <div class="mk-window-body">
+                            <svg viewBox="0 0 220 220" width="150" height="150" role="presentation" focusable="false">
+                                <circle cx="110" cy="110" r="92" fill="none" stroke="var(--border)" stroke-width="14"/>
+                                <circle cx="110" cy="110" r="92" fill="none" stroke="var(--primary)" stroke-width="14"
+                                        stroke-linecap="round" stroke-dasharray="578" stroke-dashoffset="173"
+                                        transform="rotate(-90 110 110)"/>
+                                <text x="110" y="104" text-anchor="middle" font-size="42" font-weight="700" fill="var(--text)" font-family="var(--font)">25:00</text>
+                                <text x="110" y="138" text-anchor="middle" font-size="18" fill="var(--text-muted)" font-family="var(--font)">Focus</text>
+                            </svg>
+                            <div class="mk-mock-pills">
+                                <span class="mk-pill mk-pill-primary">Start</span>
+                                <span class="mk-pill">Break</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== Features ===== -->
+        <section class="mk-section" id="features" aria-labelledby="mk-features-title">
+            <div class="mk-container">
+                <h2 id="mk-features-title" class="mk-section-title">Everything in one tidy space</h2>
+                <p class="mk-section-sub">Intention brings your timer, schedule, and reflection together so your day stays on track.</p>
+
+                <ul class="mk-grid" role="list">
+                    <li class="mk-card">
+                        <div class="mk-card-art" aria-hidden="true">
+                            <svg viewBox="0 0 120 80" role="presentation" focusable="false">
+                                <circle cx="40" cy="40" r="26" fill="none" stroke="var(--border)" stroke-width="7"/>
+                                <circle cx="40" cy="40" r="26" fill="none" stroke="var(--primary)" stroke-width="7"
+                                        stroke-linecap="round" stroke-dasharray="163" stroke-dashoffset="60" transform="rotate(-90 40 40)"/>
+                                <rect x="78" y="24" width="34" height="9" rx="4" fill="var(--border)"/>
+                                <rect x="78" y="40" width="24" height="9" rx="4" fill="var(--primary)"/>
+                                <rect x="78" y="56" width="30" height="9" rx="4" fill="var(--border)"/>
+                            </svg>
+                        </div>
+                        <h3>Pomodoro Timer</h3>
+                        <p>Work, short, and long breaks with customizable durations and an eight-session cycle. A sound and notification mark the end of each session.</p>
+                    </li>
+
+                    <li class="mk-card">
+                        <div class="mk-card-art" aria-hidden="true">
+                            <svg viewBox="0 0 120 80" role="presentation" focusable="false">
+                                <rect x="10" y="12" width="46" height="56" rx="6" fill="var(--primary)" opacity="0.85"/>
+                                <rect x="64" y="12" width="46" height="56" rx="6" fill="var(--border)"/>
+                                <circle cx="33" cy="40" r="10" fill="#fff" opacity="0.9"/>
+                                <circle cx="87" cy="40" r="10" fill="var(--text-muted)" opacity="0.4"/>
+                            </svg>
+                        </div>
+                        <h3>Focus Mode</h3>
+                        <p>Turns your entire screen greyscale to kill visual temptation. Pick the window to keep in color; color returns only when it is active. <span class="mk-tag">Desktop</span></p>
+                    </li>
+
+                    <li class="mk-card">
+                        <div class="mk-card-art" aria-hidden="true">
+                            <svg viewBox="0 0 120 80" role="presentation" focusable="false">
+                                <rect x="12" y="10" width="96" height="60" rx="6" fill="none" stroke="var(--border)" stroke-width="3"/>
+                                <rect x="20" y="20" width="80" height="12" rx="3" fill="var(--primary)" opacity="0.85"/>
+                                <rect x="20" y="38" width="56" height="10" rx="3" fill="var(--accent)" opacity="0.8"/>
+                                <rect x="20" y="54" width="70" height="10" rx="3" fill="var(--border)"/>
+                            </svg>
+                        </div>
+                        <h3>Scheduler</h3>
+                        <p>A flexible day calendar: drag to create and resize time blocks, assign to-dos, priorities, and breaks. Keep your My 5 Priorities and a to-do list with a Completed archive.</p>
+                    </li>
+
+                    <li class="mk-card">
+                        <div class="mk-card-art" aria-hidden="true">
+                            <svg viewBox="0 0 120 80" role="presentation" focusable="false">
+                                <circle cx="60" cy="40" r="24" fill="none" stroke="var(--accent)" stroke-width="6"/>
+                                <text x="60" y="48" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)" font-family="var(--font)">3</text>
+                                <circle cx="98" cy="18" r="7" fill="var(--accent)"/>
+                            </svg>
+                        </div>
+                        <h3>Distraction Tracking &amp; Reflection</h3>
+                        <p>A quick-tap counter plus an end-of-session timeline to tag each distraction, and a short reflection check-in after every four sessions.</p>
+                    </li>
+
+                    <li class="mk-card">
+                        <div class="mk-card-art" aria-hidden="true">
+                            <svg viewBox="0 0 120 80" role="presentation" focusable="false">
+                                <g fill="var(--primary)">
+                                    <rect x="12" y="12" width="14" height="14" rx="3" opacity="0.3"/>
+                                    <rect x="30" y="12" width="14" height="14" rx="3" opacity="0.6"/>
+                                    <rect x="48" y="12" width="14" height="14" rx="3" opacity="0.9"/>
+                                    <rect x="66" y="12" width="14" height="14" rx="3" opacity="0.4"/>
+                                    <rect x="84" y="12" width="14" height="14" rx="3" opacity="0.7"/>
+                                    <rect x="12" y="30" width="14" height="14" rx="3" opacity="0.5"/>
+                                    <rect x="30" y="30" width="14" height="14" rx="3" opacity="0.9"/>
+                                    <rect x="48" y="30" width="14" height="14" rx="3" opacity="0.2"/>
+                                    <rect x="66" y="30" width="14" height="14" rx="3" opacity="0.8"/>
+                                    <rect x="84" y="30" width="14" height="14" rx="3" opacity="0.6"/>
+                                    <rect x="12" y="48" width="14" height="14" rx="3" opacity="0.7"/>
+                                    <rect x="30" y="48" width="14" height="14" rx="3" opacity="0.3"/>
+                                    <rect x="48" y="48" width="14" height="14" rx="3" opacity="0.9"/>
+                                    <rect x="66" y="48" width="14" height="14" rx="3" opacity="0.5"/>
+                                    <rect x="84" y="48" width="14" height="14" rx="3" opacity="0.4"/>
+                                </g>
+                            </svg>
+                        </div>
+                        <h3>History Heatmap</h3>
+                        <p>A monthly heatmap of focus sessions per day. Click any day for its sessions, distraction breakdown, and planned schedule.</p>
+                    </li>
+
+                    <li class="mk-card">
+                        <div class="mk-card-art" aria-hidden="true">
+                            <svg viewBox="0 0 120 80" role="presentation" focusable="false">
+                                <rect x="24" y="12" width="72" height="56" rx="5" fill="var(--surface)" stroke="var(--border)" stroke-width="3"/>
+                                <rect x="34" y="22" width="52" height="8" rx="3" fill="var(--primary)" opacity="0.8"/>
+                                <rect x="34" y="36" width="52" height="6" rx="3" fill="var(--border)"/>
+                                <rect x="34" y="48" width="40" height="6" rx="3" fill="var(--border)"/>
+                            </svg>
+                        </div>
+                        <h3>Articles</h3>
+                        <p>A small built-in library. Highlight lines to rotate as inspiration on your Timer tab.</p>
+                    </li>
+
+                    <li class="mk-card">
+                        <div class="mk-card-art" aria-hidden="true">
+                            <svg viewBox="0 0 120 80" role="presentation" focusable="false">
+                                <circle cx="60" cy="34" r="16" fill="var(--primary)" opacity="0.85"/>
+                                <path d="M32 66 a28 28 0 0 1 56 0" fill="var(--border)"/>
+                                <circle cx="94" cy="20" r="9" fill="var(--accent)"/>
+                            </svg>
+                        </div>
+                        <h3>Accounts <span class="mk-tag mk-tag-soft">Optional</span></h3>
+                        <p>Sign in with a passwordless email one-time code to unlock the Online area &mdash; the home for upcoming features like calendar import, live status, and group Pomodoros. Everything else works signed out.</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ===== How it works ===== -->
+        <section class="mk-section mk-section-alt" id="how" aria-labelledby="mk-how-title">
+            <div class="mk-container">
+                <h2 id="mk-how-title" class="mk-section-title">How it works</h2>
+                <ol class="mk-steps" role="list">
+                    <li class="mk-step">
+                        <span class="mk-step-num" aria-hidden="true">1</span>
+                        <h3>Plan the day</h3>
+                        <p>Set your My 5 Priorities and drag time blocks onto the scheduler.</p>
+                    </li>
+                    <li class="mk-step">
+                        <span class="mk-step-num" aria-hidden="true">2</span>
+                        <h3>Start a focus session</h3>
+                        <p>Run the Pomodoro timer and let the work/break cycle keep you moving.</p>
+                    </li>
+                    <li class="mk-step">
+                        <span class="mk-step-num" aria-hidden="true">3</span>
+                        <h3>Log distractions</h3>
+                        <p>Tap the counter when your mind wanders, then tag each one afterward.</p>
+                    </li>
+                    <li class="mk-step">
+                        <span class="mk-step-num" aria-hidden="true">4</span>
+                        <h3>Review your history</h3>
+                        <p>Check the heatmap to see your sessions, distractions, and planned days.</p>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- ===== Desktop-only note ===== -->
+        <section class="mk-section" id="desktop" aria-labelledby="mk-desktop-title">
+            <div class="mk-container">
+                <div class="mk-callout" role="note">
+                    <h2 id="mk-desktop-title" class="mk-callout-title">A few features are desktop-only</h2>
+                    <p>The web app covers your timer, scheduler, calendar, history, reading, and sign-in. These features need the desktop build:</p>
+                    <ul class="mk-callout-list" role="list">
+                        <li>System-wide greyscale Focus Mode</li>
+                        <li>The floating mini-timer overlay</li>
+                        <li>The iOS Focus Companion pairing</li>
+                    </ul>
+                    <div class="mk-cta-row">
+                        <a class="btn btn-primary mk-cta" href="../index.html">Launch the web app</a>
+                        <a class="btn btn-ghost mk-cta" href="https://github.com/sonellmalik/Intention/releases/latest">Download for desktop</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== Footer ===== -->
+    <footer class="mk-footer">
+        <div class="mk-container mk-footer-inner">
+            <span class="mk-brand">Intention</span>
+            <nav class="mk-footer-links" aria-label="Footer">
+                <a href="https://github.com/sonellmalik/Intention">GitHub repository</a>
+                <a href="https://github.com/sonellmalik/Intention/releases/latest">Downloads</a>
+                <a href="../index.html?signin=1">Sign in</a>
+            </nav>
+            <span class="mk-footer-license">MIT License &middot; free to use, modify, and share.</span>
+        </div>
+    </footer>
+
+    <script src="marketing.js"></script>
+</body>
+</html>

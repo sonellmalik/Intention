@@ -1,0 +1,515 @@
+/* ============================================================
+   Intention marketing site styles.
+   Reuses the design tokens declared in ../css/style.css (:root)
+   so the landing page matches the app's visual identity.
+   Responsive: mobile <=600px, tablet 601-1024px, desktop >=1025px.
+   Content is centered within a ~1200px band.
+   ============================================================ */
+
+/* ---- Base ---- */
+.mk {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    line-height: 1.5;
+}
+
+.mk-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.mk a {
+    color: var(--primary);
+}
+
+/* Visible focus states for keyboard users on every interactive element. */
+.mk a:focus-visible,
+.mk button:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+/* The marketing CTAs reuse the app's .btn language but need a larger,
+   link-friendly presentation (anchors, not form buttons). */
+.mk .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    padding: 0.7rem 1.3rem;
+    font-size: 0.95rem;
+    line-height: 1.2;
+}
+
+/* ---- Header / Nav ---- */
+.mk-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+}
+
+.mk-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.mk-brand {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: -0.5px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.mk-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.mk-nav-link {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 500;
+    padding: 0.4rem 0.2rem;
+}
+
+.mk-nav-link:hover {
+    color: var(--text);
+}
+
+/* Hamburger toggle - hidden on desktop, shown on mobile. */
+.mk-nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.mk-nav-toggle-bar {
+    display: block;
+    width: 20px;
+    height: 2px;
+    margin: 0 auto;
+    background: var(--text);
+    border-radius: 2px;
+}
+
+/* ---- Hero ---- */
+.mk-hero {
+    padding: 3.5rem 0;
+}
+
+.mk-hero-inner {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 2.5rem;
+    align-items: center;
+}
+
+.mk-hero-copy h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: var(--primary);
+    margin-bottom: 0.75rem;
+}
+
+.mk-tagline {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    max-width: 34rem;
+    margin-bottom: 1.75rem;
+}
+
+.mk-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.mk-signin-line {
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.mk-note-inline {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Hero mockup window (CSS/SVG-drawn, no image files). */
+.mk-hero-mockup {
+    display: flex;
+    justify-content: center;
+}
+
+.mk-window {
+    width: 100%;
+    max-width: 360px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+.mk-window-bar {
+    display: flex;
+    gap: 0.4rem;
+    padding: 0.7rem 0.9rem;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+}
+
+.mk-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+}
+
+.mk-window-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 2rem 1.5rem 2.5rem;
+}
+
+.mk-mock-pills {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.mk-pill {
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+}
+
+.mk-pill-primary {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+/* ---- Sections ---- */
+.mk-section {
+    padding: 4rem 0;
+}
+
+.mk-section-alt {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.mk-section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.mk-section-sub {
+    text-align: center;
+    color: var(--text-muted);
+    max-width: 40rem;
+    margin: 0 auto 2.5rem;
+}
+
+/* ---- Features grid ---- */
+.mk-grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+}
+
+.mk-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+}
+
+.mk-card-art {
+    margin-bottom: 1rem;
+}
+
+.mk-card-art svg {
+    width: 100%;
+    max-width: 140px;
+    height: auto;
+}
+
+.mk-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.mk-card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.mk-tag {
+    display: inline-block;
+    margin-left: 0.3rem;
+    padding: 0.1rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #fff;
+    background: var(--accent);
+    border-radius: 999px;
+    vertical-align: middle;
+}
+
+.mk-tag-soft {
+    background: var(--primary);
+}
+
+/* ---- How it works ---- */
+.mk-steps {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    counter-reset: mk-step;
+}
+
+.mk-step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+}
+
+.mk-step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 0.9rem;
+}
+
+.mk-step h3 {
+    font-size: 1.05rem;
+    margin-bottom: 0.4rem;
+}
+
+.mk-step p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* ---- Desktop-only callout ---- */
+.mk-callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 2rem;
+    max-width: 48rem;
+    margin: 0 auto;
+}
+
+.mk-callout-title {
+    font-size: 1.4rem;
+    margin-bottom: 0.75rem;
+}
+
+.mk-callout p {
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.mk-callout-list {
+    margin: 0 0 1.5rem 1.25rem;
+    color: var(--text);
+}
+
+.mk-callout-list li {
+    margin-bottom: 0.35rem;
+}
+
+/* ---- Footer ---- */
+.mk-footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 2rem 0;
+}
+
+.mk-footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.mk-footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+.mk-footer-links a {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.mk-footer-links a:hover {
+    color: var(--text);
+}
+
+.mk-footer-license {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+
+/* Tablet: features drop to two columns, steps to two rows. */
+@media (max-width: 1024px) {
+    .mk-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .mk-steps {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .mk-hero-copy h1 {
+        font-size: 2.5rem;
+    }
+}
+
+/* Mobile: single column, collapsible nav. */
+@media (max-width: 600px) {
+    .mk-container {
+        padding: 0 1rem;
+    }
+
+    .mk-nav-toggle {
+        display: flex;
+    }
+
+    /* Collapsed menu: hidden until toggled open via the hamburger. */
+    .mk-nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+        padding: 1rem;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow);
+    }
+
+    .mk-nav-links.mk-open {
+        display: flex;
+    }
+
+    .mk-nav-link {
+        padding: 0.6rem 0.2rem;
+    }
+
+    .mk-nav .btn {
+        width: 100%;
+    }
+
+    .mk-header {
+        position: relative;
+    }
+
+    .mk-hero {
+        padding: 2.5rem 0;
+    }
+
+    .mk-hero-inner {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .mk-hero-copy h1 {
+        font-size: 2.2rem;
+    }
+
+    .mk-tagline {
+        font-size: 1.05rem;
+    }
+
+    .mk-cta-row .btn {
+        width: 100%;
+    }
+
+    .mk-section {
+        padding: 2.5rem 0;
+    }
+
+    .mk-section-title {
+        font-size: 1.6rem;
+    }
+
+    .mk-grid,
+    .mk-steps {
+        grid-template-columns: 1fr;
+    }
+
+    .mk-callout {
+        padding: 1.5rem;
+    }
+
+    .mk-footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* Respect reduced-motion preferences for the smooth-scroll anchor jumps. */
+@media (prefers-reduced-motion: reduce) {
+    .mk {
+        scroll-behavior: auto;
+    }
+}
