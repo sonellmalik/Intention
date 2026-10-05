@@ -7,8 +7,11 @@
     <meta name="description" content="Intention keeps your focus sessions, daily schedule, and progress in one tidy space. Pomodoro timer, scheduler, focus mode, distraction tracking, and history.">
     <!-- Reuse the app's design tokens (:root custom properties in css/style.css)
          so the marketing site matches the Intention visual identity exactly. -->
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="marketing.css">
+    <!-- ?v= query busts the browser/CDN cache (GitHub Pages serves CSS with a
+         10-minute max-age). Bump this number whenever the CSS changes so the
+         new styles are picked up immediately instead of after the cache expires. -->
+    <link rel="stylesheet" href="../css/style.css?v=2">
+    <link rel="stylesheet" href="marketing.css?v=2">
 </head>
 <body class="mk">
     <!-- ===== Header / Nav ===== -->
